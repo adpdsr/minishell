@@ -6,7 +6,7 @@
 /*   By: adu-pelo <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/02/25 10:29:00 by adu-pelo          #+#    #+#             */
-/*   Updated: 2016/02/25 18:14:54 by adu-pelo         ###   ########.fr       */
+/*   Updated: 2016/02/25 19:07:54 by adu-pelo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -143,9 +143,25 @@ int		is_valid_cmd(char **path, char *cmd) // ret 1 if cmd found in **path else 0
 	return (0);
 }
 
+char	**split_cmd(char *cmd)
+{
+	char **splited_cmd;
+
+	if (cmd)
+	{
+		splited_cmd = ft_strsplit(cmd, ' ');
+		ft_putstr("\n----- TAB CONTAINING SPLITED CMD -----\n");
+		print_tab(splited_cmd);
+		return (splited_cmd);
+	}
+	else
+		return (NULL);
+}
+
 int		main(int ac, char **av, char **env)
 {
 	int 	ret;
+	char	**cmd;
 	char 	**path;
 	char	*line;
 	char	**env_cpy;
@@ -170,8 +186,7 @@ int		main(int ac, char **av, char **env)
 	}
 	print_tab(path); // test
 
-	// parcourir les path de la var PATH dans l'ordre pour trouver la commande
-
+	/* affichage du promp, on recupere la cmd et on la traite (verif + exe) */
 	if (ac == 1)
 	{
 		while (1)
@@ -180,7 +195,10 @@ int		main(int ac, char **av, char **env)
 			if ((ret = get_next_line(0, &line)) > 0)
 			{
 				// verify cmd
-				if (is_valid_cmd(path, line) == 1)
+				// split cmd here and verify validity of case 0
+				cmd = split_cmd(line);
+				ft_putstr("----- MANAGE CMD -----\n\n");
+				if (is_valid_cmd(path, cmd[0]) == 1)
 				{
 					// exe cmd -> fork()
 					ft_putstr(line);
@@ -188,8 +206,12 @@ int		main(int ac, char **av, char **env)
 				}
 				else
 				{
+					if (*cmd == NULL)
+						main(ac, av, env);
 					ft_putstr("minishell: command not found: ");
 					ft_putendl(line);
+					free(line);
+					line = NULL;
 				}
 				ft_putchar('\n'); // test
 			}
