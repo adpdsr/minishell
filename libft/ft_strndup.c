@@ -1,27 +1,22 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_strrchr.c                                       :+:      :+:    :+:   */
+/*   ft_strndup.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: adu-pelo <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2015/11/26 12:22:03 by adu-pelo          #+#    #+#             */
-/*   Updated: 2016/01/14 12:56:57 by adu-pelo         ###   ########.fr       */
+/*   Created: 2016/02/17 12:07:24 by adu-pelo          #+#    #+#             */
+/*   Updated: 2016/02/17 12:09:29 by adu-pelo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft.h"
 
-char	*ft_strrchr(const char *s, int c)
+char	*ft_strndup(char const *s1, size_t len)
 {
-	const char *ch;
+	char *scpy;
 
-	ch = s;
-	ch = ch + ft_strlen(s);
-	while (*ch != (char)c && s != ch)
-		ch--;
-	if (*ch == (char)c)
-		return ((char *)ch);
-	else
+	if (!(scpy = (char *)malloc(sizeof(char) * len + 1)))
 		return (NULL);
+	return (ft_strncpy(scpy, s1, len));
 }

@@ -6,7 +6,7 @@
 /*   By: adu-pelo <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/11/24 14:05:00 by adu-pelo          #+#    #+#             */
-/*   Updated: 2016/01/25 10:31:28 by adu-pelo         ###   ########.fr       */
+/*   Updated: 2015/12/07 11:03:40 by adu-pelo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,8 +17,6 @@ size_t	ft_strlen(const char *s)
 	size_t i;
 
 	i = 0;
-	if (!s[i])
-		return (0);
 	while (s[i])
 		i++;
 	return (i);

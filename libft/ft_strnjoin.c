@@ -1,27 +1,32 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_strrchr.c                                       :+:      :+:    :+:   */
+/*   ft_strnjoin.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: adu-pelo <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2015/11/26 12:22:03 by adu-pelo          #+#    #+#             */
-/*   Updated: 2016/01/14 12:56:57 by adu-pelo         ###   ########.fr       */
+/*   Created: 2016/02/11 15:01:27 by adu-pelo          #+#    #+#             */
+/*   Updated: 2016/02/11 15:53:38 by adu-pelo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft.h"
 
-char	*ft_strrchr(const char *s, int c)
+char	*ft_strnjoin(char const *s1, char const *s2, size_t len)
 {
-	const char *ch;
+	size_t	i;
+	char	*str;
 
-	ch = s;
-	ch = ch + ft_strlen(s);
-	while (*ch != (char)c && s != ch)
-		ch--;
-	if (*ch == (char)c)
-		return ((char *)ch);
-	else
-		return (NULL);
+	i = 0;
+	str = ft_strnew(ft_strlen(s1) + (ft_strlen(s2) * len) + 1);
+	if (str)
+	{
+		ft_strcat(str, s1);
+		while (i < len)
+		{
+			ft_strcat(str, s2);
+			i++;
+		}
+	}
+	return (str);
 }

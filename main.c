@@ -6,19 +6,11 @@
 /*   By: adu-pelo <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/02/25 10:29:00 by adu-pelo          #+#    #+#             */
-/*   Updated: 2016/02/25 19:07:54 by adu-pelo         ###   ########.fr       */
+/*   Updated: 2016/02/26 19:36:01 by adu-pelo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
-
-#include <sys/types.h>
-#include <sys/uio.h>
-#include <unistd.h>
-#include <dirent.h>
-
-#include "get_next_line.h"
-#include "../ft_ls/libft/libft.h" // test
 
 char	**extract_path(char *env_path)
 {
@@ -118,29 +110,130 @@ char	**cpy_env(char **env)
 		return (NULL);
 }
 
-int		is_valid_cmd(char **path, char *cmd) // ret 1 if cmd found in **path else 0
+char		**do_setenv(char **cmd, char **env)
+{
+	int i;
+	int j;
+	int len_cmd;
+	int	len_env;
+	char **new_env;
+
+	ft_putendl("\n----- DO SETENV -----\n");
+	print_tab(env); // test
+	len_cmd = tab_len(cmd);
+	if (len_cmd != 3)
+	{
+		ft_putendl_fd("setenv must have 2 parameters", 2);
+		return (NULL);
+	}
+	else
+	{
+		i = 0;
+		j = 0;
+		len_env = tab_len(env);
+		while (env && *env)
+		{
+			if (ft_strstr(env[i], cmd[1])) // si occurence trouvee
+				i += 1;
+			env++;
+			if (i == 0) // si la variable a ajouter n'existe pas deja, on la cree
+			{
+				if (!(new_env = (char **)malloc(sizeof(char *) * len_cmd + 2))) // ou + 2 ?? a tester
+					return (NULL);
+				while (j < len_env + 1)
+				{
+					new_env[j] = ft_strdup(env[j]);
+					j++;
+				}
+				new_env[j] = ft_strdup(cmd[2]);
+				new_env[j + 1] = NULL;
+				return (new_env);
+			}
+			else if (i == 1) // si variable existe deja -> modifie = no malloc
+			{
+				
+				return (env);
+			}
+		}
+	}
+	print_tab(env);
+	return (NULL);
+}
+
+void		do_cd(char **path, char **cmd, char **env)
+{
+	DIR 			*dir;
+	char 			*tmp_path;
+	struct stat		st;
+	struct dirent	*ret;
+
+	ft_putendl("\n----- DO CD -----\n");
+	while (*path && path)
+	{
+		if ((dir = opendir(*path)))
+		{
+			while ((ret = readdir(dir)))
+			{
+				if (ft_strcmp(ret->d_name, cmd[0]) == 0)
+				{
+					tmp_path = *path;
+					tmp_path = ft_strjoin(tmp_path, "/");
+					tmp_path = ft_strjoin(tmp_path, cmd[0]);
+					if (cmd[1] && stat(cmd[1], &st)) // != 0 = fail to get stat
+						ft_putendl_fd(ft_strjoin("cd: No such file or directory: ", cmd[1]), 2);
+					else if (cmd[1] && !(S_ISDIR(st.st_mode)))
+						ft_putendl_fd(ft_strjoin("cd: Not a directory: ", cmd[1]), 2);
+					else if (cmd[1] && access(cmd[1], X_OK) == -1)
+						ft_putendl_fd(ft_strjoin("cd: Permission denied: ", cmd[1]), 2);
+					else
+						chdir(cmd[1]);
+				}
+			}
+		}
+		path++;
+	}
+}
+
+char		*find_cmd_path(char **path, char **cmd, char **env)
 {
 	DIR 			*dir;
 	struct dirent 	*ret;
 
 	if (cmd)
 	{
-		if (ft_strcmp(cmd, "exit") == 0)
-			exit(0);
-		while (*path && path)
+		if (ft_strcmp(cmd[0], "exit") == 0)
 		{
-			if ((dir = opendir(*path)))
+			ft_putendl("exit cmd detected");
+			exit(0);
+		}
+		else if (ft_strcmp(cmd[0], "cd") == 0)
+		{
+			ft_putendl("cd cmd detected");
+			do_cd(path, cmd, env);
+		}
+		else if (ft_strcmp(cmd[0], "setenv") == 0)
+		{
+			ft_putendl("setenv cmd detected");
+			env = do_setenv(cmd, env);
+		}
+		// lst builtins to code (cd, setenv etc)
+		else
+		{
+			while (*path && path)
 			{
-				while ((ret = readdir(dir)))
+				if ((dir = opendir(*path)))
 				{
-					if (ft_strcmp(ret->d_name, cmd) == 0)
-						return (1);
+					while ((ret = readdir(dir)))
+					{
+						if (ft_strcmp(ret->d_name, cmd[0]) == 0)
+							return (*path);
+					}
 				}
+				path++;
 			}
-			path++;
 		}
 	}
-	return (0);
+	return (NULL);
 }
 
 char	**split_cmd(char *cmd)
@@ -156,6 +249,67 @@ char	**split_cmd(char *cmd)
 	}
 	else
 		return (NULL);
+}
+
+char	**add_path_to_cmd(char *path, char **cmd)
+{
+	int 	i;
+	int		len_cmd;
+	char 	**new_cmd;
+
+	if (path && cmd && *cmd)
+	{
+		i = 0;
+		len_cmd = tab_len(cmd);
+		if (!(new_cmd = (char **)malloc(sizeof(char *) * len_cmd + 2)) || !len_cmd) // +1 pour new line +1 pour NULL
+			return (NULL);
+		new_cmd[0] = ft_strdup(path);
+		printf("new_cmd[0] = %s\n", ft_strdup(path));
+		while (i < len_cmd)
+		{
+			new_cmd[i + 1] = cmd[i];
+			i++;
+		}
+		new_cmd[i + 1] = NULL;
+		return (new_cmd);
+	}
+	else
+		return (NULL);
+}
+
+void	exe_cmd(char **path, char **cmd, char **env)
+{
+	int ret;
+	char *cmd_path;
+	pid_t pid;
+
+	cmd_path = NULL;
+	ft_putendl("----- EXEC CMD -----\n");
+	if (cmd[0])
+	{
+		pid = fork();
+		cmd_path = find_cmd_path(path, cmd, env);
+		if (pid > 0)
+			wait(0);
+		else
+		{
+			ft_putstr("son |");
+			ft_putnbr((int)pid);
+			ft_putendl("| created\n");
+
+			if (cmd_path != NULL)
+			{
+				cmd_path = ft_strjoin(find_cmd_path(path, cmd, env), "/");
+				cmd_path = ft_strjoin(cmd_path, cmd[0]);
+				ret = execve(cmd_path, cmd, env);
+			}
+			//else if (access(cmd[0], R_OK) == 0)
+			//	execve(cmd[0], cmd, env);
+			else
+				ft_putendl("execve failed");
+			exit(1);
+		}
+	}
 }
 
 int		main(int ac, char **av, char **env)
@@ -182,7 +336,7 @@ int		main(int ac, char **av, char **env)
 		if ((path = extract_path(ft_strstr(*env_cpy, "PATH"))) != NULL)
 			break ;
 		else
-			env_cpy += 1;
+			env_cpy++;
 	}
 	print_tab(path); // test
 
@@ -191,23 +345,24 @@ int		main(int ac, char **av, char **env)
 	{
 		while (1)
 		{
+			// condition pour l'affichage du prompt, que si pas de fork en cours
 			write(1, "$>", 2);
-			if ((ret = get_next_line(0, &line)) > 0)
+			if ((ret = get_next_line(0, &line)) == 1)
 			{
 				// verify cmd
 				// split cmd here and verify validity of case 0
 				cmd = split_cmd(line);
+				if (*cmd == NULL) // useless ?
+					main(ac, av, env);
 				ft_putstr("----- MANAGE CMD -----\n\n");
-				if (is_valid_cmd(path, cmd[0]) == 1)
+				if (find_cmd_path(path, cmd, env_cpy) != NULL)
 				{
-					// exe cmd -> fork()
-					ft_putstr(line);
-					ft_putendl(" is valid but no action defined for it");
+					ft_putendl("cmd found in path\n");
+					exe_cmd(path, cmd, env_cpy); // fork, wait
+					//main(ac, av, env);
 				}
 				else
 				{
-					if (*cmd == NULL)
-						main(ac, av, env);
 					ft_putstr("minishell: command not found: ");
 					ft_putendl(line);
 					free(line);
