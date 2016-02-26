@@ -76,7 +76,7 @@ void	print_tab(char **tab) // test
 	printf("\n");
 }
 
-int		tab_len(char **tab)
+int		tab_len(char **tab) // ajouter a libft
 {
 	int len;
 
@@ -239,7 +239,10 @@ char		*find_cmd_path(char **path, char **cmd, char **env)
 		//{
 		//
 		//}
-		// etc...
+		//else if (ft_strcmp(cmd[0], "env") == 0)
+		//{
+		//
+		//}
 		else
 		{
 			while (*path && path)
@@ -370,7 +373,12 @@ int		main(int ac, char **av, char **env)
 		while (1)
 		{
 			// condition pour l'affichage du prompt, que si pas de fork en cours
-			write(1, "$>", 2);
+			ft_putstr(ft_strncat(ft_strsub(ft_strstr(env_cpy[15], "USER"), 5, ft_strlen(env_cpy[15])), ":", 1)); // pour le test (USR ou LOGNAME)
+			// use ft_strstr to get the ptr after ocurence of VAR HOME conent in VAR PWD !!!
+			// make ft extract VAR content
+			//ft_putstr(ft_strcat("~", ));
+			ft_putstr(ft_strsub(ft_strstr(env_cpy[28], "PWD"), 4, ft_strlen(env_cpy[28]))); // pour le test
+			write(1, "$>", 2); // add current path && host_name
 			if ((ret = get_next_line(0, &line)) == 1)
 			{
 				// verify cmd
@@ -387,6 +395,8 @@ int		main(int ac, char **av, char **env)
 				}
 				else
 				{
+					ft_putstr(cmd[0]);
+					ft_putendl(": command not found");
 					free(line);
 					line = NULL;
 				}
