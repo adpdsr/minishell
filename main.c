@@ -23,6 +23,7 @@ char	**extract_path(char *env_path)
 		i = 0;
 		cnt = 1;
 		env_path = ft_strstr(env_path, "/");
+		printf("extract path: %s\n", env_path);
 		while (env_path[i])
 		{
 			if (env_path[i] == ':')
@@ -110,17 +111,24 @@ char	**cpy_env(char **env)
 		return (NULL);
 }
 
-char		**do_setenv(char **cmd, char **env)
+char		**do_setenv(char **cmd, char ***env)
 {
 	int i;
 	int j;
+	int k;
 	int len_cmd;
-	int	len_env;
+	int len_env;
+	int len_new_var;
+	char **tmp;
 	char **new_env;
 
+	k = 0;
 	ft_putendl("\n----- DO SETENV -----\n");
-	print_tab(env); // test
 	len_cmd = tab_len(cmd);
+	len_new_var = ft_strlen(cmd[0]);
+	tmp = *env;
+	if (!tmp) // secu
+		return (NULL);
 	if (len_cmd != 3)
 	{
 		ft_putendl_fd("setenv must have 2 parameters", 2);
@@ -130,33 +138,44 @@ char		**do_setenv(char **cmd, char **env)
 	{
 		i = 0;
 		j = 0;
-		len_env = tab_len(env);
-		while (env && *env)
+		len_env = tab_len(tmp);
+		while (tmp && *tmp)
 		{
-			if (ft_strstr(env[i], cmd[1])) // si occurence trouvee
-				i += 1;
-			env++;
-			if (i == 0) // si la variable a ajouter n'existe pas deja, on la cree
+			if (ft_strstr(*tmp, cmd[1])) // si occurence trouvee
 			{
-				if (!(new_env = (char **)malloc(sizeof(char *) * len_cmd + 2))) // ou + 2 ?? a tester
-					return (NULL);
-				while (j < len_env + 1)
-				{
-					new_env[j] = ft_strdup(env[j]);
-					j++;
-				}
-				new_env[j] = ft_strdup(cmd[2]);
-				new_env[j + 1] = NULL;
-				return (new_env);
+				i = 1;
+				break ;
 			}
-			else if (i == 1) // si variable existe deja -> modifie = no malloc
+			tmp++;
+			k++;
+		}
+		tmp = *env;
+		if (i == 0) // si la variable a ajouter n'existe pas deja, on la cree
+		{
+			ft_putendl("occurence not found\n");
+			if (!(new_env = (char **)malloc(sizeof(char *) * len_env + 2)))
+				return (NULL);
+			while (j < len_env)
 			{
-				
-				return (env);
+				new_env[j] = ft_strdup(tmp[j]);
+				j++;
 			}
+			new_env[j] = ft_strjoin(cmd[1], "=");
+			new_env[j] = ft_strjoin(new_env[j], cmd[2]);
+			new_env[j + 1] = NULL;
+			printf("new VAR created: |%s|\n", new_env[j]);
+			return (new_env);
+		}
+		else if (i == 1) // si variable existe deja -> modifie
+		{
+			ft_putendl("occurence found\n");
+			tmp[k] = ft_strjoin(cmd[1], "=");
+			tmp[k] = ft_strjoin(tmp[k], cmd[2]);
+			printf("old VAR replaced by: |%s|\n", tmp[k]);
+			return (tmp);
 		}
 	}
-	print_tab(env);
+	print_tab(*env);
 	return (NULL);
 }
 
@@ -214,9 +233,13 @@ char		*find_cmd_path(char **path, char **cmd, char **env)
 		else if (ft_strcmp(cmd[0], "setenv") == 0)
 		{
 			ft_putendl("setenv cmd detected");
-			env = do_setenv(cmd, env);
+			env = do_setenv(cmd, &env);
 		}
-		// lst builtins to code (cd, setenv etc)
+		//else if (ft_strcmp(cmd[0], "unsetenv") == 0)
+		//{
+		//
+		//}
+		// etc...
 		else
 		{
 			while (*path && path)
@@ -290,13 +313,14 @@ void	exe_cmd(char **path, char **cmd, char **env)
 		pid = fork();
 		cmd_path = find_cmd_path(path, cmd, env);
 		if (pid > 0)
+		{
+			ft_putstr("son pid |");
+			ft_putnbr((int)pid);
+			ft_putendl("|\n");
 			wait(0);
+		}
 		else
 		{
-			ft_putstr("son |");
-			ft_putnbr((int)pid);
-			ft_putendl("| created\n");
-
 			if (cmd_path != NULL)
 			{
 				cmd_path = ft_strjoin(find_cmd_path(path, cmd, env), "/");
@@ -323,21 +347,21 @@ int		main(int ac, char **av, char **env)
 	ret = 0;
 	line = NULL;
 
-	/* copie du tableau char **env ==> char **env_cpy */
 	print_tab(env); // test
 	ft_putstr("----- CPY OF ORIGINAL ENV TAB -----\n\n");
 	env_cpy = cpy_env(env);
 	print_tab(env_cpy); // test
 
-	/* extraction des path contenus dans PATH ==> char **path */
 	ft_putstr("----- CPY OF PATH CONTAINED IN PATH ENV_VAR PATH -----\n\n");
-	while (*env_cpy && env_cpy)
-	{
-		if ((path = extract_path(ft_strstr(*env_cpy, "PATH"))) != NULL)
-			break ;
-		else
-			env_cpy++;
-	}
+		while (*env_cpy && env_cpy)					//
+		{								//
+	//path = extract_path(env_cpy[23]); 					//// ajouter pour linux
+		printf("strstr = %s\n", ft_strstr(*env_cpy, "PATH"));		//
+		if ((path = extract_path(ft_strstr(*env_cpy, "PATH"))) != NULL) // virer pour linux
+			break ;							//
+		else								//
+			env_cpy++;						//
+		}								//
 	print_tab(path); // test
 
 	/* affichage du promp, on recupere la cmd et on la traite (verif + exe) */
@@ -363,8 +387,6 @@ int		main(int ac, char **av, char **env)
 				}
 				else
 				{
-					ft_putstr("minishell: command not found: ");
-					ft_putendl(line);
 					free(line);
 					line = NULL;
 				}
