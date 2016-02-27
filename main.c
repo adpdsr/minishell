@@ -6,7 +6,7 @@
 /*   By: adu-pelo <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/02/25 10:29:00 by adu-pelo          #+#    #+#             */
-/*   Updated: 2016/02/26 19:36:01 by adu-pelo         ###   ########.fr       */
+/*   Updated: 2016/02/27 17:00:43 by adu-pelo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,14 +23,12 @@ char	**extract_path(char *env_path)
 		i = 0;
 		cnt = 1;
 		env_path = ft_strstr(env_path, "/");
-		printf("extract path: %s\n", env_path);
 		while (env_path[i])
 		{
 			if (env_path[i] == ':')
 				cnt++;
 			i++;
 		}
-		printf("malloc size = %d\n", cnt + 1); // test
 		if (!(tab = (char **)malloc(sizeof(char) * cnt + 1)))
 			return (NULL);
 		tab = ft_strsplit(env_path, ':');
@@ -96,7 +94,6 @@ char	**cpy_env(char **env)
 	{
 		i = 0;
 		len = tab_len(env);
-		printf("malloc size = %d\n", len + 1); // test
 		if (!(cpy = (char **)malloc(sizeof(char *) * len + 1)))
 			return (NULL);
 		while (i < len)
@@ -119,35 +116,40 @@ char		**do_unsetenv(char **cmd, char **env)
 	int j;
 	char **new_env;
 	int is_in;
-	
+
 	i = 0;
 	is_in = 0;
-	while (env && env[i])
+	if (tab_len(cmd) != 2)
 	{
-		if (ft_strncmp(env[i], cmd[0], ft_strlen(cnm[0])) == 0)
+		ft_putendl("unsetenv: need one argument");
+		return (NULL);
+	}
+	while (env[i])
+	{
+		if (ft_strncmp(env[i], cmd[1], ft_strlen(cmd[1])) == 0)
+		{
 			is_in = 1;
+			break ;
+		}
 		i++;
 	}
 	if (is_in == 1)
 	{
 		j = 0;
 		if (!(new_env = (char **)malloc(sizeof(tab_len(env) + 2))))
-			return (NULL);		
-		ft_putendl("var to unset found in records, deleting");
+			return (NULL);
 		while (j < i)
 		{
-			new_tab[j] = ft_strdup(tab[j]);
+			new_env[j] = env[j];
 			j++;
 		}
-		new_tab[j] = ft_strdup(ft_strjoin(ft_strjoin(cmd[1], "="), cmd[2]));
-		j++;
-		while (j < tab_len(env) + 1)
+		while (j < tab_len(env))
 		{
-			new_tab[j] = env[j + 1];
+			new_env[j] = env[j + 1];
 			j++;
 		}
-		new_tab[j] = NULL;
-		// free env
+		new_env[j] = NULL;
+		printf("|%s| deleted\n", cmd[1]);
 		return (new_env);
 	}
 	else
@@ -169,7 +171,6 @@ char	**do_setenv(char **cmd, char ***env)
 	char **new_env;
 
 	k = 0;
-	ft_putendl("\n----- DO SETENV -----\n");
 	len_cmd = tab_len(cmd);
 	len_new_var = ft_strlen(cmd[0]);
 	tmp = *env;
@@ -221,8 +222,12 @@ char	**do_setenv(char **cmd, char ***env)
 			return (tmp);
 		}
 	}
-	print_tab(*env);
 	return (NULL);
+}
+
+void		do_env()
+{
+
 }
 
 void		do_cd(char **path, char **cmd, char **env)
@@ -232,7 +237,6 @@ void		do_cd(char **path, char **cmd, char **env)
 	struct stat		st;
 	struct dirent	*ret;
 
-	ft_putendl("\n----- DO CD -----\n");
 	while (*path && path)
 	{
 		if ((dir = opendir(*path)))
@@ -244,7 +248,7 @@ void		do_cd(char **path, char **cmd, char **env)
 					tmp_path = *path;
 					tmp_path = ft_strjoin(tmp_path, "/");
 					tmp_path = ft_strjoin(tmp_path, cmd[0]);
-					if (cmd[1] && stat(cmd[1], &st)) // != 0 = fail to get stat
+					if (cmd[1] && stat(cmd[1], &st))
 						ft_putendl_fd(ft_strjoin("cd: No such file or directory: ", cmd[1]), 2);
 					else if (cmd[1] && !(S_ISDIR(st.st_mode)))
 						ft_putendl_fd(ft_strjoin("cd: Not a directory: ", cmd[1]), 2);
@@ -267,24 +271,13 @@ char		*find_cmd_path(char **path, char **cmd, char **env)
 	if (cmd)
 	{
 		if (ft_strcmp(cmd[0], "exit") == 0)
-		{
-			ft_putendl("exit cmd detected");
 			exit(0);
-		}
 		else if (ft_strcmp(cmd[0], "cd") == 0)
-		{
-			ft_putendl("cd cmd detected");
 			do_cd(path, cmd, env);
-		}
 		else if (ft_strcmp(cmd[0], "setenv") == 0)
-		{
-			ft_putendl("setenv cmd detected");
 			env = do_setenv(cmd, &env);
-		}
-		//else if (ft_strcmp(cmd[0], "unsetenv") == 0)
-		//{
-		//
-		//}
+		else if (ft_strcmp(cmd[0], "unsetenv") == 0)
+			env = do_unsetenv(cmd, env);
 		//else if (ft_strcmp(cmd[0], "env") == 0)
 		//{
 		//
@@ -315,8 +308,6 @@ char	**split_cmd(char *cmd)
 	if (cmd)
 	{
 		splited_cmd = ft_strsplit(cmd, ' ');
-		ft_putstr("\n----- TAB CONTAINING SPLITED CMD -----\n");
-		print_tab(splited_cmd);
 		return (splited_cmd);
 	}
 	else
@@ -336,7 +327,6 @@ char	**add_path_to_cmd(char *path, char **cmd)
 		if (!(new_cmd = (char **)malloc(sizeof(char *) * len_cmd + 2)) || !len_cmd) // +1 pour new line +1 pour NULL
 			return (NULL);
 		new_cmd[0] = ft_strdup(path);
-		printf("new_cmd[0] = %s\n", ft_strdup(path));
 		while (i < len_cmd)
 		{
 			new_cmd[i + 1] = cmd[i];
@@ -356,18 +346,12 @@ void	exe_cmd(char **path, char **cmd, char **env)
 	pid_t pid;
 
 	cmd_path = NULL;
-	ft_putendl("----- EXEC CMD -----\n");
 	if (cmd[0])
 	{
 		pid = fork();
 		cmd_path = find_cmd_path(path, cmd, env);
 		if (pid > 0)
-		{
-			ft_putstr("son pid |");
-			ft_putnbr((int)pid);
-			ft_putendl("|\n");
 			wait(0);
-		}
 		else
 		{
 			if (cmd_path != NULL)
@@ -376,13 +360,70 @@ void	exe_cmd(char **path, char **cmd, char **env)
 				cmd_path = ft_strjoin(cmd_path, cmd[0]);
 				ret = execve(cmd_path, cmd, env);
 			}
-			//else if (access(cmd[0], R_OK) == 0)
-			//	execve(cmd[0], cmd, env);
-			else
-				ft_putendl("execve failed");
-			exit(1);
+			//	else if (access(cmd[0], R_OK) == 0)
+			//		execve(cmd[0], cmd, env);
+			//	else
+			//	{
+			//		ft_putstr(cmd[0]);
+			//		ft_putendl(": command not found");
+			//		exit(1);
+			//	}
 		}
+		// kill
 	}
+}
+
+char 	*extract_var_content(char **env, char *var)
+{
+	int i;
+	int len_var;
+	char *content;
+
+	i = 0;
+	while (env[i])
+	{
+		if (ft_strstr(env[i], var))
+		{
+			len_var = ft_strlen(var) + 1;
+			content = ft_strdup(ft_strsub(env[i], len_var, ft_strlen(env[i]) - len_var));
+			return (content);
+		}	
+		i++;
+	}
+	return (NULL);
+}
+
+char	*get_curr_path(char *path)// prompt.c
+{
+	int i;
+	char *curr;
+
+	if (path)
+	{
+		i = ft_strlen(path);
+		while (path[i] != '/')
+			i--;
+		curr = ft_strsub(path, i + 1, ft_strlen(path));
+		return (curr);
+	}
+	else
+		return (NULL);
+}
+
+void	print_prompt(char **env) // prompt.c
+{
+	char *pwd;
+	char *user;
+
+	pwd = NULL;
+	pwd = getcwd(pwd, 20);
+	pwd = get_curr_path(pwd);
+	user = extract_var_content(env, "USER");
+	if (ft_strcmp(pwd, user) == 0)
+		pwd = "~";
+	ft_putstr(pwd);
+	ft_putchar(' ');
+	write(1, "$>", 3);
 }
 
 int		main(int ac, char **av, char **env)
@@ -395,62 +436,40 @@ int		main(int ac, char **av, char **env)
 
 	ret = 0;
 	line = NULL;
-
-	print_tab(env); // test
-	ft_putstr("----- CPY OF ORIGINAL ENV TAB -----\n\n");
-	env_cpy = cpy_env(env);
-	print_tab(env_cpy); // test
-
-	ft_putstr("----- CPY OF PATH CONTAINED IN PATH ENV_VAR PATH -----\n\n");
-		while (*env_cpy && env_cpy)					//
-		{								//
-	//path = extract_path(env_cpy[23]); 					//// ajouter pour linux
-		printf("strstr = %s\n", ft_strstr(*env_cpy, "PATH"));		//
-		if ((path = extract_path(ft_strstr(*env_cpy, "PATH"))) != NULL) // virer pour linux
-			break ;							//
-		else								//
-			env_cpy++;						//
-		}								//
-	print_tab(path); // test
-
-	/* affichage du promp, on recupere la cmd et on la traite (verif + exe) */
 	if (ac == 1)
 	{
 		while (1)
 		{
-			// condition pour l'affichage du prompt, que si pas de fork en cours
-			ft_putstr(ft_strncat(ft_strsub(ft_strstr(env_cpy[15], "USER"), 5, ft_strlen(env_cpy[15])), ":", 1)); // pour le test (USR ou LOGNAME)
-			// use ft_strstr to get the ptr after ocurence of VAR HOME conent in VAR PWD !!!
-			// make ft extract VAR content
-			//ft_putstr(ft_strcat("~", ));
-			ft_putstr(ft_strsub(ft_strstr(env_cpy[28], "PWD"), 4, ft_strlen(env_cpy[28]))); // pour le test
-			write(1, "$>", 2); // add current path && host_name
+			env_cpy = cpy_env(env);
+			while (*env_cpy && env_cpy)											//
+			{																	//
+				//path = extract_path(env_cpy[23]); 							//// ajouter pour linux
+				if ((path = extract_path(ft_strstr(*env_cpy, "PATH"))) != NULL) // virer pour linux
+					break ;														//
+				else															//
+					env_cpy++;													//
+			}																	//
+			print_prompt(env_cpy);
 			if ((ret = get_next_line(0, &line)) == 1)
 			{
-				// verify cmd
-				// split cmd here and verify validity of case 0
 				cmd = split_cmd(line);
-				if (*cmd == NULL) // useless ?
-					main(ac, av, env);
-				ft_putstr("----- MANAGE CMD -----\n\n");
-				if (find_cmd_path(path, cmd, env_cpy) != NULL)
-				{
-					ft_putendl("cmd found in path\n");
-					exe_cmd(path, cmd, env_cpy); // fork, wait
-					//main(ac, av, env);
-				}
-				else
-				{
-					ft_putstr(cmd[0]);
-					ft_putendl(": command not found");
-					free(line);
-					line = NULL;
-				}
-				ft_putchar('\n'); // test
+				//	if (cmd == NULL) // useless ?
+				//		main(ac, av, env);
+				//		print_tab(path);
+				//		print_tab(env_cpy);
+				//	if (find_cmd_path(path, cmd, env_cpy) == NULL)
+				//	{
+				//		ft_putstr(cmd[0]);
+				//		ft_putendl(": command not found");
+				//		free(line);
+				//		line = NULL;
+				//	}
+				//	else
+				exe_cmd(path, cmd, env_cpy); // fork, wait
 			}
 		}
 	}
 	else
-		ft_putendl_fd("this binary doesn't take any args", 2);
+		ft_putendl_fd("minishell doesn't take any argument", 2);
 	return (0);
 }
