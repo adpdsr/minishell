@@ -111,7 +111,53 @@ char	**cpy_env(char **env)
 		return (NULL);
 }
 
-char		**do_setenv(char **cmd, char ***env)
+// unsetenv: delete variable to unset, or return unchanger var tab if doesnt exist
+
+char		**do_unsetenv(char **cmd, char **env)
+{
+	int i;
+	int j;
+	char **new_env;
+	int is_in;
+	
+	i = 0;
+	is_in = 0;
+	while (env && env[i])
+	{
+		if (ft_strncmp(env[i], cmd[0], ft_strlen(cnm[0])) == 0)
+			is_in = 1;
+		i++;
+	}
+	if (is_in == 1)
+	{
+		j = 0;
+		if (!(new_env = (char **)malloc(sizeof(tab_len(env) + 2))))
+			return (NULL);		
+		ft_putendl("var to unset found in records, deleting");
+		while (j < i)
+		{
+			new_tab[j] = ft_strdup(tab[j]);
+			j++;
+		}
+		new_tab[j] = ft_strdup(ft_strjoin(ft_strjoin(cmd[1], "="), cmd[2]));
+		j++;
+		while (j < tab_len(env) + 1)
+		{
+			new_tab[j] = env[j + 1];
+			j++;
+		}
+		new_tab[j] = NULL;
+		// free env
+		return (new_env);
+	}
+	else
+	{
+		ft_putendl("no var to unset, returning original tab");
+		return (env);
+	}
+}
+
+char	**do_setenv(char **cmd, char ***env)
 {
 	int i;
 	int j;
