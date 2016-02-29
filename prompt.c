@@ -6,7 +6,7 @@
 /*   By: adu-pelo <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/02/25 10:29:00 by adu-pelo          #+#    #+#             */
-/*   Updated: 2016/02/29 10:34:41 by adu-pelo         ###   ########.fr       */
+/*   Updated: 2016/02/29 11:23:56 by adu-pelo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,9 +32,12 @@ static char	*get_curr_path(char *path)
 void	print_prompt(char **env)
 {
 	char *pwd;
+	char *home;
 	char *user;
 
 	pwd = NULL;
+	ft_putendl("----- PRINT PROMPT -----");
+	print_env(env);
 	pwd = getcwd(pwd, 20);
 	pwd = get_curr_path(pwd);
 	user = extract_var_content(env, "USER");

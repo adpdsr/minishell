@@ -6,7 +6,7 @@
 /*   By: adu-pelo <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/02/25 10:29:00 by adu-pelo          #+#    #+#             */
-/*   Updated: 2016/02/29 10:54:59 by adu-pelo         ###   ########.fr       */
+/*   Updated: 2016/02/29 11:37:56 by adu-pelo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -116,7 +116,10 @@ void	exe_cmd(char **path, char **cmd, char **env)
 	pid = fork();
 	cmd_path = NULL;
 	if (pid > 0)
+	{
+		//
 		wait(0);
+	}
 	else
 	{
 		if (is_builtin(cmd[0]))

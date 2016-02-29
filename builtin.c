@@ -6,7 +6,7 @@
 /*   By: adu-pelo <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/02/25 10:29:00 by adu-pelo          #+#    #+#             */
-/*   Updated: 2016/02/29 10:34:04 by adu-pelo         ###   ########.fr       */
+/*   Updated: 2016/02/29 11:36:12 by adu-pelo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -173,6 +173,8 @@ static char		**do_cd(char **path, char **cmd, char **env)
 	struct stat		st;
 	struct dirent	*ret;
 
+	//ft_putstr("\nres = ");
+	//ft_putendl(extract_var_content(env, "HOME"));
 	while (*path && path)
 	{
 		if ((dir = opendir(*path)))
@@ -191,7 +193,11 @@ static char		**do_cd(char **path, char **cmd, char **env)
 					else if (cmd[1] && access(cmd[1], X_OK) == -1)
 						ft_putendl_fd(ft_strjoin("cd: Permission denied: ", cmd[1]), 2);
 					else
+					{
+						ft_putstr("chdir(cmd[1]) = ");
+						ft_putendl(cmd[1]);
 						chdir(cmd[1]);
+					}
 				}
 			}
 		}
@@ -203,7 +209,7 @@ static char		**do_cd(char **path, char **cmd, char **env)
 char	**do_builtin(char **cmd, char **path, char **env)
 {
 	if (ft_strcmp(cmd[0], "cd") == 0)
-		env = do_cd(path, cmd, env); // cmd, path, envv
+		env = do_cd(path, cmd, env);
 	else if (ft_strcmp(cmd[0], "setenv") == 0)
 		env = do_setenv(cmd, &env);
 	else if (ft_strcmp(cmd[0], "unsetenv") == 0)
