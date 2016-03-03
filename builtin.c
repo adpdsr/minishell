@@ -6,7 +6,7 @@
 /*   By: adu-pelo <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/02/25 10:29:00 by adu-pelo          #+#    #+#             */
-/*   Updated: 2016/02/29 11:36:12 by adu-pelo         ###   ########.fr       */
+/*   Updated: 2016/03/03 16:33:14 by adu-pelo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@ static char		**do_unsetenv(char **cmd, char **env)
 
 	i = 0;
 	is_in = 0;
+	ft_putendl("--- DO UNSETENV ---");
 	print_env(cmd);
 	if (ft_tablen(cmd) != 2)
 	{
@@ -53,6 +54,8 @@ static char		**do_unsetenv(char **cmd, char **env)
 		}
 		new_env[j] = NULL;
 		printf("|%s| deleted\n", cmd[1]);
+		ft_putendl("--- UNSETENV RET ---");
+		print_env(new_env);
 		return (new_env);
 	}
 	else
@@ -74,6 +77,7 @@ static char	**do_setenv(char **cmd, char ***env)
 	char **new_env;
 
 	k = 0;
+	ft_putendl("--- DO SETENV ---");
 	len_cmd = ft_tablen(cmd);
 	len_new_var = ft_strlen(cmd[0]);
 	tmp = *env;
@@ -132,6 +136,7 @@ static char		**do_env(char **cmd, char **env)
 {
 	int len;
 
+	ft_putendl("--- DO ENV ---");
 	len = ft_tablen(cmd);
 	if (len > 3)
 	{
@@ -173,8 +178,9 @@ static char		**do_cd(char **path, char **cmd, char **env)
 	struct stat		st;
 	struct dirent	*ret;
 
-	//ft_putstr("\nres = ");
-	//ft_putendl(extract_var_content(env, "HOME"));
+	ft_putendl("--- DO CD ---");
+	print_env(path);
+	print_env(cmd);
 	while (*path && path)
 	{
 		if ((dir = opendir(*path)))
@@ -193,11 +199,7 @@ static char		**do_cd(char **path, char **cmd, char **env)
 					else if (cmd[1] && access(cmd[1], X_OK) == -1)
 						ft_putendl_fd(ft_strjoin("cd: Permission denied: ", cmd[1]), 2);
 					else
-					{
-						ft_putstr("chdir(cmd[1]) = ");
-						ft_putendl(cmd[1]);
 						chdir(cmd[1]);
-					}
 				}
 			}
 		}
@@ -208,11 +210,22 @@ static char		**do_cd(char **path, char **cmd, char **env)
 
 char	**do_builtin(char **cmd, char **path, char **env)
 {
-	if (ft_strcmp(cmd[0], "cd") == 0)
+	if (!ft_strcmp(cmd[0], "exit"))
+	{
+		ft_putendl("exit cmd found");
+		if (ft_tablen(cmd) != 1)
+			ft_putendl("wrong number of argument");
+		else
+		{
+			ft_putendl("--- EXITING ---");
+			exit(0);
+		}
+	}
+	else if (!ft_strcmp(cmd[0], "cd"))
 		env = do_cd(path, cmd, env);
-	else if (ft_strcmp(cmd[0], "setenv") == 0)
+	else if (!ft_strcmp(cmd[0], "setenv"))
 		env = do_setenv(cmd, &env);
-	else if (ft_strcmp(cmd[0], "unsetenv") == 0)
+	else if (!ft_strcmp(cmd[0], "unsetenv"))
 		env = do_unsetenv(cmd, env);
 	else
 	{

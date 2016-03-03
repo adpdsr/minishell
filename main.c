@@ -6,24 +6,32 @@
 /*   By: adu-pelo <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/02/25 10:29:00 by adu-pelo          #+#    #+#             */
-/*   Updated: 2016/02/29 11:37:56 by adu-pelo         ###   ########.fr       */
+/*   Updated: 2016/03/03 16:33:16 by adu-pelo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-void	print_env(char **env) // test
+void	print_env(char **env)
 {
 	int i;
 	int len;
 
-	i = -1;
+	i = 0;
+	ft_putendl("--- PRINT ENV ---");
 	len = ft_tablen(env);
-	if (*env && env)
-		while (++i < len)
+	ft_putendl("---> tab_len OK");
+	if (env && **env)
+	{
+		while (i < len)
+		{
 			ft_putendl(env[i]);
+			i++;
+		}
+	}
 	else
 		ft_putendl("environment is empty");
+	ft_putendl("--- END PRINT ENV ---");
 }
 
 char	**cpy_env(char **env)
@@ -32,15 +40,19 @@ char	**cpy_env(char **env)
 	int		len;
 	char	**cpy;
 
-	if (*env && env)
+	ft_putendl("--- CPY ENV ---");
+	if (**env && *env && env)
 	{
-		i = -1;
+		i = 0;
 		len = ft_tablen(env);
 		if (!(cpy = (char **)malloc(sizeof(char *) * len + 1)))
 			return (NULL);
-		while (++i < len)
+		while (i < len)
+		{
 			cpy[i] = ft_strdup(env[i]);
-		cpy[++i] = NULL;
+			i++;
+		}
+		cpy[i] = NULL;
 		return (cpy);
 	}
 	else
@@ -82,7 +94,7 @@ char	**add_path_to_cmd(char *path, char **cmd)
 	int 	i;
 	int		len_cmd;
 	char 	**new_cmd;
-	
+
 	new_cmd = NULL;
 	if (path && cmd && *cmd)
 	{
@@ -100,57 +112,86 @@ char	**add_path_to_cmd(char *path, char **cmd)
 
 int		is_builtin(char *cmd)
 {
-	if (cmd && (!ft_strcmp(cmd, "cd") || !ft_strcmp(cmd, "env")
-				|| !ft_strcmp(cmd, "setenv") || !ft_strcmp(cmd, "unsetenv")))
+	if (cmd && (!ft_strcmp(cmd, "cd")
+				|| !ft_strcmp(cmd, "env")
+				|| !ft_strcmp(cmd, "exit")
+				|| !ft_strcmp(cmd, "setenv")
+				|| !ft_strcmp(cmd, "unsetenv")))
 		return (1);
 	else
 		return (0);
 }
 
-void	exe_cmd(char **path, char **cmd, char **env)
+char	**exe_cmd(char **path, char **cmd, char **env)
 {
-	int ret;
-	char *cmd_path;
-	pid_t pid;
+	//int		ret;
+	char	*cmd_path;
+	pid_t	pid;
 
-	pid = fork();
+	//ret = -1;
 	cmd_path = NULL;
-	if (pid > 0)
+	if (cmd && is_builtin(cmd[0]))
 	{
-		//
-		wait(0);
+		ft_putendl("--- IS BUILTIN ---");
+		env = do_builtin(cmd, path, env);
 	}
 	else
 	{
-		if (is_builtin(cmd[0]))
-			env = do_builtin(cmd, path, env);
-		else if ((cmd_path = find_cmd_path(path, cmd, env)))
+		ft_putendl("--- ISNT BUILTIN ---");
+		pid = fork();
+		if (pid > 0)
 		{
-			cmd_path = ft_strjoin(find_cmd_path(path, cmd, env), "/");
-			cmd_path = ft_strjoin(cmd_path, cmd[0]);
+			// parent process
+			//waitpid(pid, &ret, 0);
+			wait(0);
 		}
 		else
-			ft_putendl("command nor found");
-		ret = execve(cmd_path, cmd, env);
+		{
+			// child process
+			ft_putendl("--- EXE NON BUILTIN CMD ---");
+			//	ft_putendl(cmd[0]);
+			if ((cmd_path = find_cmd_path(path, cmd, env)))
+			{
+				cmd_path = ft_strjoin(find_cmd_path(path, cmd, env), "/");
+				cmd_path = ft_strjoin(cmd_path, cmd[0]);
+			}
+			else
+				ft_putendl("command not found");
+			execve(cmd_path, cmd, env);
+		}
+		return (env);
 	}
+	return (env);
 }
 
 char 	*extract_var_content(char **env, char *var)
 {
-	int i;
-	int len_var;
-	char *content;
+	int		i;
+	int		len_var;
+	char	*content;
 
 	i = 0;
-	while (env[i])
+	if (env)
 	{
-		if (ft_strstr(env[i], var))
+		printf("debug5\n");
+		while (env && env[i])
 		{
-			len_var = ft_strlen(var) + 1;
-			content = ft_strdup(ft_strsub(env[i], len_var, ft_strlen(env[i]) - len_var));
-			return (content);
-		}	
-		i++;
+			printf("debug6\n");
+			ft_putendl(env[i]);
+			if ((ft_strstr(env[i], var)))
+			{
+				printf("debug7\n");
+				len_var = ft_strlen(var) + 1;
+				printf("debug8\n");
+				content = ft_strdup(ft_strsub(env[i], len_var, ft_strlen(env[i]) - len_var));
+				printf("debug9\n");
+				ft_putstr("var content is: ");
+				ft_putendl(content);
+				return (content);
+			}
+			else	
+				i++;
+		}
 	}
 	return (NULL);
 }
@@ -160,28 +201,27 @@ char	**extract_path(char **env)
 	int 	i;
 	int		j;
 	int 	cnt;
+	char	*cpy;
 	char 	**tab;
 
 	i = -1;
 	j = -1;
 	cnt = 1;
-	while (env && env[++i])
+	cpy = NULL;
+	ft_putendl("--- EXTRACTING PATH ---");
+	if (env)
+		cpy = extract_var_content(env, "PATH");
+	if (cpy)
 	{
-		if (ft_strstr(env[i], "PATH="))
+		while (cpy[++j])
 		{
-			if ((env[i] = ft_strstr(env[i], "/")))
-			{
-				while (env[++j])
-				{
-					if (env[i][j] == ':')
-						cnt++;
-				}
-				if (!(tab = (char **)malloc(sizeof(char) * cnt + 1)))
-					return (NULL);
-				tab = ft_strsplit(env[i], ':');
-				return (tab);
-			}
+			if (cpy[j] == ':')
+				cnt++;
 		}
+		if (!(tab = (char **)malloc(sizeof(char) * cnt + 1)))
+			return (NULL);
+		tab = ft_strsplit(cpy, ':');
+		return (tab);
 	}
 	return (NULL);
 }
@@ -198,23 +238,40 @@ int		main(int ac, char **av, char **env)
 	line = NULL;
 	if (ac == 1)
 	{
+		env_cpy = cpy_env(env);
 		while (1)
 		{
+			print_env(env_cpy);
+			path = NULL;
+		//	env_cpy = cpy_env(env);
+			ft_putendl("--- START PRINT PROMPT ---");
 			print_prompt(env_cpy);
-			env_cpy = cpy_env(env); // ?? where
 			if (((ret = get_next_line(0, &line)) == 1) && ft_strcmp(line, ""))
 			{
+				ft_putendl("--- GNL SUCCESS ---");
 				if (line)
+				{
+					ft_putendl("--- LINE OK ---");
 					cmd = split_cmd(line);
-				if (!ft_strcmp(cmd[0], "exit"))
-				{
-					exit(0);
+					ft_putendl("--- CMD OK ---");
 				}
-				else if (cmd && env_cpy)
+				if (cmd && env_cpy)
 				{
+					ft_putendl("--- CMD OK ENV OK ---");
 					path = extract_path(env_cpy);
-					exe_cmd(path, cmd, env_cpy);
+					print_env(path);
+					ft_putendl("--- EXTRACT PATH OK ---");
+					if (path)
+					{
+						ft_putendl("--- START EXE CMD ---");
+						env_cpy = exe_cmd(path, cmd, env_cpy);
+						ft_putendl("--- END EXE CMD ---");
+					}
+					else
+						ft_putendl("--- NO PATH CREATED ---");
 				}
+				else
+					ft_putendl("--- NO CMD OR ENV ---");
 			}
 		}
 	}
