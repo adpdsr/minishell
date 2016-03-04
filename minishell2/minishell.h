@@ -20,6 +20,7 @@ void	prompt(char **env);
 void	print_env(char **env);
 char	*get_var_content(char **env, char *var);
 int	is_in(char **env, char *cmd);
+void	execute_cmd(char **cmd, char *cmdp, char **env);
 
 // BUILTINS
 char	**do_cd(char **cmd, char **env);
