@@ -2,7 +2,7 @@
 // HEADER
 //
 
-#include "./minishell.h"
+#include "minishell.h"
 
 char		**do_cd(char **cmd, char **env)
 {

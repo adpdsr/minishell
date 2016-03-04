@@ -10,7 +10,7 @@ void		print_env(char **env)
 	int i;
 
 	i = 0;
-	if (env)
+	if (env && *env)
 	{
 		while (env[i])
 		{
@@ -121,6 +121,7 @@ int		main(int ac, char **av, char **environ)
 			prompt(env);
 			if ((get_next_line(0, &line)) == 1)
 			{
+				// METTRE LA SUITE DANS UNE FONCTION STATIC
 				cmd = ft_strsplit(line, ' ');
 				ft_putendl("-----"); // test
 				ft_putendl("free"); // test
@@ -149,6 +150,7 @@ int		main(int ac, char **av, char **environ)
 				print_env(cmd); // test
 				ft_putendl("-----");
 				ft_freetab(cmd); // test
+				//////////////////////////////////////////
 			}
 
 		}

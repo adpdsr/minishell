@@ -2,8 +2,7 @@
 // HEADER
 //
 
-#include "./minishell.h"
-#include <stdio.h>
+#include "minishell.h"
 
 int		is_in(char **env, char *cmd)
 {

@@ -2,15 +2,41 @@
 // HEADER
 //
 
-#include "./minishell.h"
-#include <stdio.h>
+#include "minishell.h"
 
-char	**do_setenv(char **cmd, char **env)
+static char	**add_line(char **env, char **new_env, char **cmd, int len)
 {
 	int i;
-	int j;
-	int len;
+
+	i = 0;
+	while (i < len)
+	{
+		new_env[i] = ft_strdup(env[i]);
+		i++;
+
+	}
+	new_env[i] = ft_strjoin(cmd[1], "=");
+	new_env[i] = ft_strjoin(new_env[i], cmd[2]);
+	new_env[i + 1] = NULL;
+	return (new_env);
+}
+
+static char	**modif_line(char **env, char **cmd, int i)
+{
 	char *tmp;
+
+	env[i] = ft_strjoin(cmd[1], "=");
+	tmp = env[i];
+	env[i] = ft_strjoin(tmp, cmd[2]);
+	i++;
+	env[i] = NULL;
+	return (env);
+}
+
+char		**do_setenv(char **cmd, char **env)
+{
+	int i;
+	int len;
 	char **new_env;
 
 	if (ft_tablen(cmd) != 3)
@@ -20,30 +46,16 @@ char	**do_setenv(char **cmd, char **env)
 	}
 	else
 	{
-		j = 0;
-		if ((i = is_in(env, cmd[1])) == len) // si variable n'existe pas -> creation
+		len = ft_tablen(env);
+		if ((i = is_in(env, cmd[1])) == len || len == 0)
 		{
 			len = ft_tablen(env);
 			if (!(new_env = (char **)malloc(sizeof(char *) * len + 2)))
 				return (NULL);
-			while (j < len)
-			{
-				new_env[j] = ft_strdup(env[j]);
-				j++;
-			}
-			new_env[j] = ft_strjoin(cmd[1], "=");
-			new_env[j] = ft_strjoin(new_env[j], cmd[2]);
-			new_env[j + 1] = NULL;
-			return (new_env);
+			return (add_line(env, new_env, cmd, len));
 		}
-		else // si variable existe deja -> modifie
-		{
-			env[i] = NULL; // strdel
-			env[i] = ft_strjoin(cmd[1], "=");
-			tmp = env[i];
-			env[i] = ft_strjoin(tmp, cmd[2]);
-			return (env);
-		}
+		else
+			return (modif_line(env, cmd, i));
 	}
 	return (NULL);
 }

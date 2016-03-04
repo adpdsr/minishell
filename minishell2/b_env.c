@@ -2,8 +2,7 @@
 // HEADER
 //
 
-#include "./minishell.h"
-#include <stdio.h>
+#include "minishell.h"
 
 static char	**rm_nl(char **env, int size)
 {
