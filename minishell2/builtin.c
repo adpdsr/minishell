@@ -24,9 +24,7 @@ char	**do_builtin(char **cmd, char **path, char **env)
 {
 	char **modif_env;
 
-	if (!ft_strcmp(cmd[0], "exit"))
-		exit(0);
-	else if (!ft_strcmp(cmd[0], "cd"))
+	if (!ft_strcmp(cmd[0], "cd"))
 		modif_env = do_cd(cmd, env);
 	else if (!ft_strcmp(cmd[0], "setenv"))
 		modif_env = do_setenv(cmd, env);

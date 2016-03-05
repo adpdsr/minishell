@@ -26,4 +26,6 @@ void	prompt(char **env)
 	else
 		ft_putstr(cwd);
 	write(1, " $>", 3);
+	ft_strdel(&user);
+	ft_strdel(&home);
 }

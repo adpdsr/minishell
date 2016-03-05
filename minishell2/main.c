@@ -28,16 +28,14 @@ void		print_env(char **env)
 
 static int	is_builtin(char *cmd)
 {
-	if (!ft_strcmp(cmd, "exit"))
+	if (!ft_strcmp(cmd, "cd"))
 		return (1);
-	else if (!ft_strcmp(cmd, "cd"))
-		return (2);
 	else if (!ft_strcmp(cmd, "env"))
-		return (3);
+		return (2);
 	else if (!ft_strcmp(cmd, "setenv"))
-		return (4);
+		return (3);
 	else if (!ft_strcmp(cmd, "unsetenv"))
-		return (5);
+		return (4);
 	else
 		return (0);
 }
@@ -59,8 +57,12 @@ static char	*find_cmdp(char *cmd, char **path)
 			{
 				while ((ret = readdir(dir)))
 					if (!ft_strcmp(ret->d_name, cmd))
+					{
+						closedir(dir);
 						return (ft_strdup(path[i]));
+					}
 			}
+			closedir(dir);
 			i++;
 		}
 	}
@@ -78,7 +80,7 @@ char	*get_var_content(char **env, char *var)
 	char 	*tmp;
 	char 	*content;
 
-	if (env)
+	if (env && *env)
 	{
 		i = 0;
 		while (env[i])
@@ -95,8 +97,7 @@ char	*get_var_content(char **env, char *var)
 			i++;
 		}
 	}
-	else
-		return (NULL);
+	return (NULL);
 }
 
 int		main(int ac, char **av, char **environ)
@@ -105,7 +106,7 @@ int		main(int ac, char **av, char **environ)
 	char *cmdp;
 	char **cmd;
 	char **env;
-	char *patht;
+	char *paths;
 	char **path;
 
 	cmd = NULL; //
@@ -122,18 +123,54 @@ int		main(int ac, char **av, char **environ)
 			if ((get_next_line(0, &line)) == 1)
 			{
 				// METTRE LA SUITE DANS UNE FONCTION STATIC
-				cmd = ft_strsplit(line, ' ');
-				ft_putendl("-----"); // test
-				ft_putendl("free"); // test
-				ft_putendl(line); // test
-				ft_putendl("-----"); // test
-				ft_strdel(&line);
+				if (line)
+				{
+					cmd = ft_strsplit(line, ' ');
+					ft_strdel(&line);
+				}
 				if (ft_tablen(cmd))
 				{
-					patht = get_var_content(env, "PATH");
-					if (patht)
-						path = ft_strsplit(patht, ':');
-					if (is_builtin(cmd[0]) > 0)
+					paths = get_var_content(env, "PATH");
+					if (paths)
+						path = ft_strsplit(paths, ':');
+					if (!(ft_strcmp(cmd[0], "exit")) && ft_tablen(cmd) == 1)
+					{
+						if (paths)
+						{
+							ft_putendl("exit free paths");
+							ft_putendl(paths);
+							ft_strdel(&paths);
+						}
+						if (path)
+						{
+							ft_putendl("exit free path");
+							ft_freetab(path);
+						}
+						if (cmd)
+						{
+							ft_putendl("exit free cmd");
+							ft_freetab(cmd);
+						}
+						if (cmdp)
+						{
+							ft_putendl("exit free cmdp");
+							ft_putendl(cmdp);
+							ft_strdel(&cmdp);
+						}
+						if (line)
+						{
+							ft_putendl("exit free line");
+							ft_putendl(line);
+							ft_strdel(&line);
+						}
+					//	if (env)
+					//	{
+					//		ft_freetab(env);
+					//		ft_putendl("exit free env");
+					//	}
+						break ;
+					}
+					else if (is_builtin(cmd[0]) > 0)
 						env = do_builtin(cmd, path, env);
 					else
 					{
@@ -142,18 +179,31 @@ int		main(int ac, char **av, char **environ)
 						else
 							ft_putendl("command not found");
 					}
+					ft_putendl("free paths");
+					ft_strdel(&paths);
 				}
 				else
 					ft_putendl("no command");
-				ft_putendl("-----"); // test
-				ft_putendl("free"); // test
-				print_env(cmd); // test
-				ft_putendl("-----");
-				ft_freetab(cmd); // test
 				//////////////////////////////////////////
+				if (ft_tablen(path) != 0)
+				{
+					ft_putendl("free path");
+					ft_freetab(path);
+				}
+				if (cmd)
+				{
+					ft_putendl("free cmd");
+					ft_freetab(cmd);
+				}
+				if (cmdp)
+				{
+					ft_putendl("free cmdp");
+					ft_strdel(&cmdp);
+				}
 			}
 
 		}
+		ft_freetab(env);
 	}
 	else
 		ft_putendl("minishell doesn't take any argument");

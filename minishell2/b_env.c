@@ -13,7 +13,7 @@ static char	**rm_nl(char **env, int size)
 	i = 0;
 	if (size && env)
 	{
-		if (!(new_env = (char **)malloc(sizeof(char *) * size)))
+		if (!(new_env = (char **)malloc(sizeof(char *) * (size))))
 			return (NULL);
 		while (i < size - 1)
 		{
@@ -75,6 +75,7 @@ char		**do_env(char **cmd, char **env)
 			ft_putendl_fd("wrong number of argument", 2);
 			return (env);
 		}
+		ft_freetab(env);
 		return (NULL);
 	}
 	else if (cmd[1] && ft_cntc(cmd[1], '=') == 1)

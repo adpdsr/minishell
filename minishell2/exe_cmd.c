@@ -6,6 +6,7 @@
 
 void	execute_cmd(char **cmd, char *cmdp, char **env)
 {
+	char *tmp;
 	pid_t father;
 
 	father = fork();
@@ -13,16 +14,13 @@ void	execute_cmd(char **cmd, char *cmdp, char **env)
 		wait(0);
 	else if (father == 0)
 	{
-		cmdp = ft_strcat(cmdp, "/");
-		cmdp = ft_strcat(cmdp, cmd[0]);
+		tmp = ft_strjoin(cmdp, "/");
+		ft_strdel(&cmdp);
+		cmdp = ft_strjoin(tmp, cmd[0]);
+		ft_strdel(&tmp);
 		execve(cmdp, cmd, env);
 		// prog never go there
 	}
 	else
 		ft_putendl("cannot fork");
-	ft_putendl("-----"); // test
-	ft_putendl("free"); // test
-	ft_putendl(cmdp); // test
-	ft_putendl("-----"); // test
-	ft_strdel(&cmdp);
 }
