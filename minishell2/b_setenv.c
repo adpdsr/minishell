@@ -1,12 +1,20 @@
-//
-// HEADER
-//
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   b_setenv.c                                         :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: adu-pelo <marvin@42.fr>                    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2016/03/12 13:42:10 by adu-pelo          #+#    #+#             */
+/*   Updated: 2016/03/12 18:37:23 by adu-pelo         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 #include "minishell.h"
 
 static char	**add_line(char **env, char **new_env, char **cmd, int len)
 {
-	int	i;
+	int		i;
 	char	*tmp;
 
 	i = 0;
@@ -14,15 +22,12 @@ static char	**add_line(char **env, char **new_env, char **cmd, int len)
 	{
 		new_env[i] = ft_strdup(env[i]);
 		i++;
-
 	}
-//	ft_strdel(&new_env[i]); //
 	new_env[i] = ft_strjoin(cmd[1], "=");
 	tmp = new_env[i];
-	new_env[i] = ft_strjoin(tmp, cmd[2]); //--> leaks
+	new_env[i] = ft_strjoin(tmp, cmd[2]);
 	ft_strdel(&tmp);
 	new_env[i + 1] = NULL;
-	ft_putendl("free env");
 	ft_freetab(env);
 	return (new_env);
 }
@@ -31,13 +36,12 @@ static char	**modif_line(char **env, char **cmd, int i, int len)
 {
 	char *tmp;
 
-//	if (len == 1)
-//	{
-//		ft_putendl("free env");
-//		ft_freetab(env);
-//		return (NULL);
-//	}
-	env[i] = ft_strcat(cmd[1], "="); //--> leaks
+	if (len == 1)
+	{
+		ft_freetab(env);
+		return (NULL);
+	}
+	env[i] = ft_strcat(cmd[1], "=");
 	tmp = env[i];
 	env[i] = ft_strjoin(tmp, cmd[2]);
 	i++;
@@ -47,9 +51,9 @@ static char	**modif_line(char **env, char **cmd, int i, int len)
 
 char		**do_setenv(char **cmd, char **env)
 {
-	int i;
-	int len;
-	char **new_env;
+	int		i;
+	int		len;
+	char	**new_env;
 
 	if (ft_tablen(cmd) != 3)
 	{
@@ -70,5 +74,6 @@ char		**do_setenv(char **cmd, char **env)
 		else
 			return (modif_line(env, cmd, i, len));
 	}
+	ft_freetab(env);
 	return (NULL);
 }

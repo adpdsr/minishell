@@ -1,36 +1,20 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_tabdup.c                                        :+:      :+:    :+:   */
+/*   ft_sscmp.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: adu-pelo <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2016/03/12 15:55:07 by adu-pelo          #+#    #+#             */
-/*   Updated: 2016/03/12 15:56:19 by adu-pelo         ###   ########.fr       */
+/*   Created: 2016/03/12 17:52:58 by adu-pelo          #+#    #+#             */
+/*   Updated: 2016/03/12 17:57:35 by adu-pelo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft.h"
 
-char	**ft_tabdup(char **tab)
+int		ft_sscmp(char *s, char *s1, char *s2)
 {
-	int i;
-	int len;
-	char **cpy;
-
-	if (tab)
-	{
-		i = 0;
-		len = ft_tablen(tab);
-		if (!(cpy = (char **)malloc(sizeof(char *) * (len + 1))))
-			return (NULL);
-		while (i < len)
-		{
-			cpy[i] = ft_strdup(tab[i]);
-			i++;
-		}
-		cpy[i] = NULL;
-		return (cpy);
-	}
-	return (NULL);
+	if (!ft_strcmp(s, s1) || !ft_strcmp(s, s2))
+		return (1);
+	return (0);
 }

@@ -1,9 +1,16 @@
-//
-// HEADER
-//
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   main.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: adu-pelo <marvin@42.fr>                    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2016/03/12 12:05:32 by adu-pelo          #+#    #+#             */
+/*   Updated: 2016/03/12 18:41:00 by adu-pelo         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 #include "minishell.h"
-#include <stdio.h> // test
 
 void		print_env(char **env)
 {
@@ -42,10 +49,10 @@ static int	is_builtin(char *cmd)
 
 static char	*find_cmdp(char *cmd, char **path)
 {
-	int 		i;
-	int		j;
-	DIR		*dir;
-	struct dirent 	*ret;
+	int				i;
+	int				j;
+	DIR				*dir;
+	struct dirent	*ret;
 
 	if (cmd && path)
 	{
@@ -54,31 +61,26 @@ static char	*find_cmdp(char *cmd, char **path)
 		while (path[i])
 		{
 			if ((dir = opendir(path[i])))
-			{
 				while ((ret = readdir(dir)))
 					if (!ft_strcmp(ret->d_name, cmd))
 					{
 						closedir(dir);
 						return (ft_strdup(path[i]));
 					}
-			}
 			closedir(dir);
 			i++;
 		}
 	}
-	else
-	{
-		ft_putendl("could not find cmd path");
-		return (NULL);
-	}
+	ft_putendl("could not find cmd path");
+	return (NULL);
 }
 
-char	*get_var_content(char **env, char *var)
+char		*get_var_content(char **env, char *var)
 {
-	int 	i;
-	int 	start;
-	char 	*tmp;
-	char 	*content;
+	int		i;
+	int		start;
+	char	*tmp;
+	char	*content;
 
 	if (env && *env)
 	{
@@ -100,20 +102,20 @@ char	*get_var_content(char **env, char *var)
 	return (NULL);
 }
 
-int		main(int ac, char **av, char **environ)
+int			main(int ac, char **av, char **environ)
 {
-	char *line;
-	char *cmdp;
-	char **cmd;
-	char **env;
-	char *paths;
-	char **path;
+	char	*line;
+	char	*cmdp;
+	char	**cmd;
+	char	**env;
+	char	*paths;
+	char	**path;
 
-	cmd = NULL; //
-	env = NULL; //
-	cmdp = NULL;//
-	line = NULL;//
-	path = NULL;//
+	cmd = NULL;
+	env = NULL;
+	cmdp = NULL;
+	line = NULL;
+	path = NULL;
 	env = ft_tabdup(environ);
 	if (ac == 1)
 	{
@@ -122,56 +124,31 @@ int		main(int ac, char **av, char **environ)
 			prompt(env);
 			if ((get_next_line(0, &line)) == 1)
 			{
-				// METTRE LA SUITE DANS UNE FONCTION STATIC
-				if (line)
-				{
-					cmd = ft_strsplit(line, ' ');
-					ft_strdel(&line);
-				}
+				cmd = ft_strsplit(line, ' ');
+				ft_strdel(&line);
 				if (ft_tablen(cmd))
 				{
 					paths = get_var_content(env, "PATH");
 					if (paths)
 						path = ft_strsplit(paths, ':');
+					else
+						path = NULL;
 					if (!(ft_strcmp(cmd[0], "exit")) && ft_tablen(cmd) == 1)
 					{
 						if (paths)
-						{
-							ft_putendl("exit free paths");
-							ft_putendl(paths);
 							ft_strdel(&paths);
-						}
 						if (path)
-						{
-							ft_putendl("exit free path");
 							ft_freetab(path);
-						}
 						if (cmd)
-						{
-							ft_putendl("exit free cmd");
 							ft_freetab(cmd);
-						}
 						if (cmdp)
-						{
-							ft_putendl("exit free cmdp");
-							ft_putendl(cmdp);
 							ft_strdel(&cmdp);
-						}
 						if (line)
-						{
-							ft_putendl("exit free line");
-							ft_putendl(line);
 							ft_strdel(&line);
-						}
-					//	if (env)
-					//	{
-					//		ft_freetab(env);
-					//		ft_putendl("exit free env");
-					//	}
 						break ;
 					}
 					else if (is_builtin(cmd[0]) > 0)
-						env = do_builtin(cmd, path, env);
+						env = do_builtin(cmd, env);
 					else
 					{
 						if ((cmdp = find_cmdp(cmd[0], path)) != NULL)
@@ -179,33 +156,23 @@ int		main(int ac, char **av, char **environ)
 						else
 							ft_putendl("command not found");
 					}
-					ft_putendl("free paths");
 					ft_strdel(&paths);
 				}
 				else
 					ft_putendl("no command");
-				//////////////////////////////////////////
-				if (ft_tablen(path) != 0)
-				{
-					ft_putendl("free path");
+				if (path)
 					ft_freetab(path);
-				}
 				if (cmd)
-				{
-					ft_putendl("free cmd");
 					ft_freetab(cmd);
-				}
 				if (cmdp)
-				{
-					ft_putendl("free cmdp");
 					ft_strdel(&cmdp);
-				}
 			}
-
 		}
+		ft_putendl("freeing env");
 		ft_freetab(env);
 	}
 	else
 		ft_putendl("minishell doesn't take any argument");
+	av = NULL;
 	return (0);
 }
