@@ -65,12 +65,23 @@ static char	**ignore_env(char **env, int len)
 	return (NULL);
 }
 
+static void	redirect_fork(char **cmd, char **env)
+{
+	char	*cmdp;
+	char	*paths;
+	char	**path;
+
+	ft_putendl("redirecting to fork");
+	paths = get_var_content(env, "PATH");
+	path = ft_strsplit(paths, ':');
+	cmdp = find_cmdp(cmd[2], path);
+	execute_cmd(&cmd[2], cmdp, env);
+}
+
 char		**do_env(char **cmd, char **env)
 {
 	int		len;
-	int		flag;
 
-	flag = 0;
 	len = ft_tablen(cmd);
 	if (len == 1)
 	{
@@ -78,26 +89,40 @@ char		**do_env(char **cmd, char **env)
 		return (env);
 	}
 	else if (ft_sscmp(cmd[1], "-0", "--null"))
+	{
 		env = rm_nl(env, ft_tablen(env) + 1);
-		// flag = 
+		if (len > 2)
+			redirect_fork(cmd, env);
+		return (env);
+	}
 	else if (ft_sscmp(cmd[1], "-u", "--unset"))
 	{
-		if (cmd[2])
-			return (do_unsetenv(++cmd, env));
-		ft_putendl_fd("wrong number of argument", 2);
+		if (len > 2)
+			env = do_unsetenv(++cmd, env);
+		if (len > 3)
+			redirect_fork(cmd, env);
+		else
+			ft_putendl_fd("wrong number of argument", 2);
 		return (env);
 	}
 	else if (ft_ssscmp(cmd[1], "-", "-i", "--ignore-environment"))
-		return (ignore_env(env, len));
-	else if (cmd[1] && ft_cntc(cmd[1], '=') == 1)
 	{
-		if (!cmd[2])
-			return (redirect_setenv(cmd, env));
-		ft_putendl_fd("wrong number of argument", 2);
+		env = ignore_env(env, len);
+		if (len > 2)
+			redirect_fork(cmd, env);
+		return (env);
 	}
-	else if (cmd[1] && !ft_strcmp(cmd[1], "--version"))
+	else if (ft_cntc(cmd[1], '=') == 1)
+	{
+		env = redirect_setenv(cmd, env);
+		if (len > 2)
+			redirect_fork(cmd, env);
+		return (env);
+	}
+	else if (!ft_strcmp(cmd[1], "--version"))
 		ft_putendl("version 1.0 made by adu-pelo");
 	else
 		ft_putendl_fd("option not found", 2);
+	ft_putendl_fd("command not found", 2);
 	return (env);
 }

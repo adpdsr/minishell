@@ -88,8 +88,8 @@ SRCS = 	ft_atoi.c \
 		ft_cntc.c \
 		ft_tabdup.c \
 		ft_freetab.c \
-		ft_sscmp.c \
-		ft_ssscmp.c
+		ft_ssscmp.c \
+		ft_sscmp.c
 
 OBJS = $(SRCS:.c=.o)
 

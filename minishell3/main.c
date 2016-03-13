@@ -47,7 +47,7 @@ static int	is_builtin(char *cmd)
 		return (0);
 }
 
-static char	*find_cmdp(char *cmd, char **path)
+char	*find_cmdp(char *cmd, char **path)
 {
 	int				i;
 	int				j;
@@ -102,6 +102,18 @@ char		*get_var_content(char **env, char *var)
 	return (NULL);
 }
 
+static void		free_prog(char *cmdp, char *paths, char **cmd, char **path)
+{
+	if (paths)
+		ft_strdel(&paths);
+	if (path)
+		ft_freetab(path);
+	if (cmd)
+		ft_freetab(cmd);
+	if (cmdp)
+		ft_strdel(&cmdp);
+}
+
 int			main(int ac, char **av, char **environ)
 {
 	char	*line;
@@ -116,6 +128,7 @@ int			main(int ac, char **av, char **environ)
 	cmdp = NULL;
 	line = NULL;
 	path = NULL;
+//	signal(SIGINT, SIG_IGN); // ignore interrupt signal
 	env = ft_tabdup(environ);
 	if (ac == 1)
 	{
@@ -128,7 +141,6 @@ int			main(int ac, char **av, char **environ)
 				ft_strdel(&line);
 				if (ft_tablen(cmd))
 				{
-					ft_putendl("test1\n");
 					paths = get_var_content(env, "PATH");
 					if (paths)
 						path = ft_strsplit(paths, ':');
@@ -136,41 +148,23 @@ int			main(int ac, char **av, char **environ)
 						path = NULL;
 					if (!(ft_strcmp(cmd[0], "exit")) && ft_tablen(cmd) == 1)
 					{
-						if (paths)
-							ft_strdel(&paths);
-						if (path)
-							ft_freetab(path);
-						if (cmd)
-							ft_freetab(cmd);
-						if (cmdp)
-							ft_strdel(&cmdp);
-						if (line)
-							ft_strdel(&line);
+						free_prog(cmdp, paths, cmd, path);
 						break ;
 					}
 					else if (is_builtin(cmd[0]) > 0)
 						env = do_builtin(cmd, env);
 					else
 					{
-						ft_putendl("test2\n");
 						if ((cmdp = find_cmdp(cmd[0], path)) != NULL)
-						{
-							ft_putendl("test3\n");
 							execute_cmd(cmd, cmdp, env);
-						}
 						else
 							ft_putendl("command not found");
 					}
-					ft_strdel(&paths);
+					//ft_strdel(&paths);
 				}
 				else
 					ft_putendl("no command");
-				if (path)
-					ft_freetab(path);
-				if (cmd)
-					ft_freetab(cmd);
-				if (cmdp)
-					ft_strdel(&cmdp);
+				free_prog(cmdp, paths, cmd, path);
 			}
 		}
 		ft_putendl("freeing env");
