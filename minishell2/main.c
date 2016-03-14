@@ -6,165 +6,100 @@
 /*   By: adu-pelo <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/03/12 12:05:32 by adu-pelo          #+#    #+#             */
-/*   Updated: 2016/03/14 11:32:16 by adu-pelo         ###   ########.fr       */
+/*   Updated: 2016/03/14 18:56:02 by adu-pelo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-void		print_env(char **env)
+static char	**get_path_tab(char **env, char **path)
 {
-	int i;
+	char	*paths;
 
-	i = 0;
-	if (env && *env)
+	paths = NULL;
+	paths = get_var_content(env, "PATH");
+	if (paths)
 	{
-		while (env[i])
-		{
-			ft_putnbr(i);
-			if (i < 10)
-				ft_putchar(' ');
-			ft_putchar(' ');
-			ft_putendl(env[i]);
-			i++;
-		}
-	}
-	else
-		ft_putendl("env: environment is empty");
-}
-
-static int	is_builtin(char *cmd)
-{
-	if (!ft_strcmp(cmd, "cd"))
-		return (1);
-	else if (!ft_strcmp(cmd, "env"))
-		return (2);
-	else if (!ft_strcmp(cmd, "setenv"))
-		return (3);
-	else if (!ft_strcmp(cmd, "unsetenv"))
-		return (4);
-	else
-		return (0);
-}
-
-char		*find_cmdp(char *cmd, char **path)
-{
-	int				i;
-	int				j;
-	DIR				*dir;
-	struct dirent	*ret;
-
-	if (cmd && path && *path)
-	{
-		i = -1;
-		j = 0;
-		while (path[++i])
-			if ((dir = opendir(path[i])))
-			{
-				while ((ret = readdir(dir)))
-					if (!ft_strcmp(ret->d_name, cmd))
-					{
-						closedir(dir);
-						return (ft_strdup(path[i]));
-					}
-				closedir(dir);
-			}
+		path = ft_strsplit(paths, ':');
+		ft_strdel(&paths);
+		return (path);
 	}
 	return (NULL);
 }
 
-char		*get_var_content(char **env, char *var)
+static void	do_exe_cmd(char **env, char **cmd, char **path)
 {
-	int		i;
-	int		start;
-	char	*tmp;
-	char	*content;
+	char	*cmdp;
 
-	if (env && *env)
-	{
-		i = 0;
-		while (env[i])
-		{
-			if (!ft_strncmp(env[i], var, ft_strlen(var)))
-			{
-				start = ft_strlen(var) + 1;
-				tmp = ft_strsub(env[i], start, ft_strlen(env[i]) - start);
-				content = ft_strdup(tmp);
-				free(tmp);
-				tmp = NULL;
-				return (content);
-			}
-			i++;
-		}
-	}
-	return (NULL);
+	cmdp = NULL;
+	if ((cmdp = find_cmdp(cmd[0], path)) != NULL)
+		execute_cmd(cmd, cmdp, env);
+	else
+		ft_putendl("command not found");
+	ft_strdel(&cmdp);
 }
 
-static void	free_prog(char **path, char **cmd, char *cmdp)
+static void	free_exit(char **env, char **cmd, char **path)
 {
-	if (path)
+	ft_freetab(path);
+	ft_freetab(cmd);
+	ft_freetab(env);	
+}
+
+static void	parse_cmd(char **env, char **cmd, char **path, char *line)
+{
+	cmd = ft_strsplit(line, ' ');
+	ft_strdel(&line);
+	if (ft_tablen(cmd))
+	{
+		path = get_path_tab(env, path);
+		if (!(ft_strcmp(cmd[0], "exit")) && ft_tablen(cmd) == 1)
+		{
+			free_exit(env, cmd, path);
+			exit(0);
+		}
+		else if (is_builtin(cmd[0]) > 0)
+		{
+			ft_putendl("test1");
+			env = do_builtin(cmd, env);
+			ft_putendl("test2");
+		}
+		else
+			do_exe_cmd(env, cmd, path);
+		ft_putendl("test3");
 		ft_freetab(path);
-	if (cmd)
-		ft_freetab(cmd);
-	if (cmdp)
-		ft_strdel(&cmdp);
+		ft_putendl("test4");
+	}
 }
 
 int			main(int ac, char **av, char **environ)
 {
 	char	*line;
-	char	*cmdp;
 	char	**cmd;
 	char	**env;
-	char	*paths;
 	char	**path;
 
-	cmd = NULL;
-	env = NULL;
-	cmdp = NULL;
-	line = NULL;
-	path = NULL;
+	ft_putendl("test0.0");
 	env = ft_tabdup(environ);
+	ft_putendl("test0.1");
 	if (ac == 1)
 	{
 		while (1)
 		{
+			ft_putendl("test0.2");
+			cmd = NULL;
+			path = NULL;
+			ft_putendl("test0.3");
 			prompt(env);
 			if ((get_next_line(0, &line)) == 1)
 			{
-				cmd = ft_strsplit(line, ' ');
-				ft_strdel(&line);
-				if (ft_tablen(cmd))
-				{
-					paths = get_var_content(env, "PATH");
-					if (paths)
-					{
-						path = ft_strsplit(paths, ':');
-						ft_strdel(&paths);
-					}
-					else
-						path = NULL;
-					if (!(ft_strcmp(cmd[0], "exit")) && ft_tablen(cmd) == 1)
-					{
-						free_prog(path, cmd, cmdp);
-						break ;
-					}
-					else if (is_builtin(cmd[0]) > 0)
-						env = do_builtin(cmd, env);
-					else
-					{
-						if ((cmdp = find_cmdp(cmd[0], path)) != NULL)
-							execute_cmd(cmd, cmdp, env);
-						else
-							ft_putendl("command not found");
-					}
-				}
-				else
-					ft_putendl("no command");
-				free_prog(path, cmd, cmdp);
+				ft_putendl("test0.4");
+				parse_cmd(env, cmd, path, line);
 			}
+			else
+				ft_putendl("no command");
+			ft_putendl("test0.5");
 		}
-		ft_freetab(env);
 	}
 	else
 		ft_putendl("minishell doesn't take any argument");

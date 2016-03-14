@@ -6,7 +6,7 @@
 /*   By: adu-pelo <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/03/12 12:02:42 by adu-pelo          #+#    #+#             */
-/*   Updated: 2016/03/12 18:36:22 by adu-pelo         ###   ########.fr       */
+/*   Updated: 2016/03/14 15:28:39 by adu-pelo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,12 +40,13 @@ char		**do_unsetenv(char **cmd, char **env)
 
 	i = 0;
 	len = ft_tablen(env);
-	if (ft_tablen(cmd) != 2)
+	if (ft_tablen(cmd) < 2)
 		ft_putendl("unsetenv: need one argument");
 	else if ((i = is_in(env, cmd[1])) != len && len > 0)
 	{
 		if (len == 1)
 		{
+			ft_putendl("len is == 1, free env");
 			ft_freetab(env);
 			return (NULL);
 		}
@@ -55,6 +56,5 @@ char		**do_unsetenv(char **cmd, char **env)
 	}
 	else
 		ft_putendl("unsetenv: envrionment unchanged");
-	ft_putendl("in do_unsetenv");
 	return (env);
 }

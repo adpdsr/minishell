@@ -6,7 +6,7 @@
 /*   By: adu-pelo <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/03/12 15:55:07 by adu-pelo          #+#    #+#             */
-/*   Updated: 2016/03/12 15:56:19 by adu-pelo         ###   ########.fr       */
+/*   Updated: 2016/03/14 16:37:18 by adu-pelo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,9 +14,9 @@
 
 char	**ft_tabdup(char **tab)
 {
-	int i;
-	int len;
-	char **cpy;
+	int		i;
+	int		len;
+	char	**cpy;
 
 	if (tab)
 	{

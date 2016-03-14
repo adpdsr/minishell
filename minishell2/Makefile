@@ -6,17 +6,18 @@
 #    By: adu-pelo <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2016/03/08 16:51:41 by adu-pelo          #+#    #+#              #
-#    Updated: 2016/03/12 14:13:28 by adu-pelo         ###   ########.fr        #
+#    Updated: 2016/03/14 18:39:30 by adu-pelo         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME = minishell
 
-SRC = b_cd.c b_env.c b_setenv.c b_unsetenv.c builtin.c exe_cmd.c main.c prompt.c
+SRC = b_cd.c b_env.c b_setenv.c b_unsetenv.c builtin.c exe_cmd.c main.c \
+	  prompt.c tools.c tools2.c
 
 OBJ = $(SRC:.c=.o)
 LIB = ./libft/libft.a
-FLAGS = -g -Wall -Wextra -Werror # -g pour debug, a virer
+FLAGS = -Wall -Wextra -Werror
 
 $(NAME): $(OBJ)
 	make -C ./libft

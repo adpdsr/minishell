@@ -6,7 +6,7 @@
 /*   By: adu-pelo <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/03/12 14:13:55 by adu-pelo          #+#    #+#             */
-/*   Updated: 2016/03/12 14:48:55 by adu-pelo         ###   ########.fr       */
+/*   Updated: 2016/03/14 18:51:05 by adu-pelo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,10 +17,16 @@ void	ft_freetab(char **tab)
 	int i;
 	int len;
 
-	i = -1;
-	len = ft_tablen(tab);
-	while (++i < len)
-		ft_strdel(&tab[i]);
-	free(tab);
-	tab = NULL;
+	if (tab)
+	{
+		if (*tab)
+		{
+			i = -1;
+			len = ft_tablen(tab);
+			while (++i < len)
+				ft_strdel(&tab[i]);
+		}
+		free(tab);
+		tab = NULL;
+	}
 }

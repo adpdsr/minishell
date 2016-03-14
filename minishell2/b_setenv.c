@@ -6,7 +6,7 @@
 /*   By: adu-pelo <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/03/12 13:42:10 by adu-pelo          #+#    #+#             */
-/*   Updated: 2016/03/14 11:58:40 by adu-pelo         ###   ########.fr       */
+/*   Updated: 2016/03/14 18:48:24 by adu-pelo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,7 @@ static char	**add_line(char **env, char **new_env, char **cmd, int len)
 	new_env[i] = ft_strjoin(tmp, cmd[2]);
 	ft_strdel(&tmp);
 	new_env[i + 1] = NULL;
-	ft_freetab(env);
+	//ft_freetab(env);
 	return (new_env);
 }
 
