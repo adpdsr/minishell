@@ -6,7 +6,7 @@
 /*   By: adu-pelo <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/03/12 12:05:32 by adu-pelo          #+#    #+#             */
-/*   Updated: 2016/03/12 18:41:00 by adu-pelo         ###   ########.fr       */
+/*   Updated: 2016/03/14 11:32:16 by adu-pelo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,31 +47,29 @@ static int	is_builtin(char *cmd)
 		return (0);
 }
 
-static char	*find_cmdp(char *cmd, char **path)
+char		*find_cmdp(char *cmd, char **path)
 {
 	int				i;
 	int				j;
 	DIR				*dir;
 	struct dirent	*ret;
 
-	if (cmd && path)
+	if (cmd && path && *path)
 	{
-		i = 0;
+		i = -1;
 		j = 0;
-		while (path[i])
-		{
+		while (path[++i])
 			if ((dir = opendir(path[i])))
+			{
 				while ((ret = readdir(dir)))
 					if (!ft_strcmp(ret->d_name, cmd))
 					{
 						closedir(dir);
 						return (ft_strdup(path[i]));
 					}
-			closedir(dir);
-			i++;
-		}
+				closedir(dir);
+			}
 	}
-	ft_putendl("could not find cmd path");
 	return (NULL);
 }
 
@@ -102,6 +100,16 @@ char		*get_var_content(char **env, char *var)
 	return (NULL);
 }
 
+static void	free_prog(char **path, char **cmd, char *cmdp)
+{
+	if (path)
+		ft_freetab(path);
+	if (cmd)
+		ft_freetab(cmd);
+	if (cmdp)
+		ft_strdel(&cmdp);
+}
+
 int			main(int ac, char **av, char **environ)
 {
 	char	*line;
@@ -128,52 +136,34 @@ int			main(int ac, char **av, char **environ)
 				ft_strdel(&line);
 				if (ft_tablen(cmd))
 				{
-					ft_putendl("test1\n");
 					paths = get_var_content(env, "PATH");
 					if (paths)
+					{
 						path = ft_strsplit(paths, ':');
+						ft_strdel(&paths);
+					}
 					else
 						path = NULL;
 					if (!(ft_strcmp(cmd[0], "exit")) && ft_tablen(cmd) == 1)
 					{
-						if (paths)
-							ft_strdel(&paths);
-						if (path)
-							ft_freetab(path);
-						if (cmd)
-							ft_freetab(cmd);
-						if (cmdp)
-							ft_strdel(&cmdp);
-						if (line)
-							ft_strdel(&line);
+						free_prog(path, cmd, cmdp);
 						break ;
 					}
 					else if (is_builtin(cmd[0]) > 0)
 						env = do_builtin(cmd, env);
 					else
 					{
-						ft_putendl("test2\n");
 						if ((cmdp = find_cmdp(cmd[0], path)) != NULL)
-						{
-							ft_putendl("test3\n");
 							execute_cmd(cmd, cmdp, env);
-						}
 						else
 							ft_putendl("command not found");
 					}
-					ft_strdel(&paths);
 				}
 				else
 					ft_putendl("no command");
-				if (path)
-					ft_freetab(path);
-				if (cmd)
-					ft_freetab(cmd);
-				if (cmdp)
-					ft_strdel(&cmdp);
+				free_prog(path, cmd, cmdp);
 			}
 		}
-		ft_putendl("freeing env");
 		ft_freetab(env);
 	}
 	else
