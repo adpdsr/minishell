@@ -12,7 +12,7 @@
 
 #include "minishell.h"
 
-static void	color(char *color, char *toput)
+void		color(char *color, char *toput)
 {
 	ft_putchar('\033');
 	ft_putstr(color);

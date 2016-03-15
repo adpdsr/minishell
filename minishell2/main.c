@@ -52,8 +52,13 @@ static void	do_exe_cmd(char **env, char **cmd, char **path)
 	ft_strdel(&cmdp);
 }
 
-static char	**parse_cmd(char **env, char **cmd, char **path, char *line)
+static char	**parse_cmd(char **env, char *line)
 {
+	char **cmd;
+	char **path;
+
+	cmd = NULL;
+	path = NULL;
 	cmd = ft_strsplit(line, ' ');
 	ft_strdel(&line);
 	if (ft_tablen(cmd) != 0)
@@ -87,10 +92,10 @@ static char	**parse_cmd(char **env, char **cmd, char **path, char *line)
 
 int			main(int ac, char **av, char **environ)
 {
+	int		i;
 	char	*line;
-	char	**cmd;
 	char	**env;
-	char	**path;
+	char	**cmds;
 
 	signal(SIGINT, SIG_IGN);
 	env = ft_tabdup(environ);
@@ -98,17 +103,27 @@ int			main(int ac, char **av, char **environ)
 	{
 		while (1)
 		{
-			cmd = NULL;
-			path = NULL;
 			prompt(env);
 			if ((get_next_line(0, &line)) == 1)
-				env = parse_cmd(env, cmd, path, line);
-			else
-				ft_putendl("no command");
+			{	
+				i = 0;
+				cmds = NULL;
+				cmds = ft_strsplit(line, ';');
+				print_env(cmds);
+				while (cmds[i])
+				{
+					ft_putstr("new cmd : ");
+					ft_putendl(cmds[i]);
+					env = parse_cmd(env, cmds[i]);
+					i++;
+				}
+			}
+			// ft_freetab(cmds);
+			// do cd when cmd = cd ../ ls -> correct
 		}
 	}
 	else
-		ft_putendl("minishell doesn't take any argument");
+		ft_putendl("usage: ./minishell");
 	av = NULL;
 	return (0);
 }

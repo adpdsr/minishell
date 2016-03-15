@@ -32,6 +32,13 @@ static char	**create_new_env(char **env, char **new_env, int i, int len)
 	return (new_env);
 }
 
+static void	err_not_found(char *cmd)
+{
+	color("[39m", "unsetenv: ");
+	color("[31m", cmd);
+	color("[39m", " not found\n");
+}
+
 char		**do_unsetenv(char **cmd, char **env)
 {
 	int		i;
@@ -53,7 +60,9 @@ char		**do_unsetenv(char **cmd, char **env)
 			exit(1);
 		return (create_new_env(env, new_env, i, len));
 	}
+	else if (!cmd[2])
+		err_not_found(cmd[1]);
 	else
-		ft_putendl("unsetenv: envrionment unchanged");
+		ft_putendl("too many arguments");
 	return (env);
 }

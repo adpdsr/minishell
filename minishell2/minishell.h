@@ -24,6 +24,7 @@
 
 void	execute_cmd(char **cmd, char *cmdp, char **env);
 void	free_exit(char **env, char **cmd, char **path);
+void	color(char *color, char *toput);
 void	prompt(char **env);
 void	print_env(char **env);
 char	*get_var_content(char **env, char *var);
