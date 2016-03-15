@@ -6,7 +6,7 @@
 /*   By: adu-pelo <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/03/12 13:42:10 by adu-pelo          #+#    #+#             */
-/*   Updated: 2016/03/14 18:48:24 by adu-pelo         ###   ########.fr       */
+/*   Updated: 2016/03/15 16:51:08 by adu-pelo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,6 @@ static char	**add_line(char **env, char **new_env, char **cmd, int len)
 	new_env[i] = ft_strjoin(tmp, cmd[2]);
 	ft_strdel(&tmp);
 	new_env[i + 1] = NULL;
-	//ft_freetab(env);
 	return (new_env);
 }
 
@@ -46,6 +45,23 @@ static char	**modif_line(char **env, char **cmd, int i, int len)
 	env[i] = ft_strjoin(tmp, cmd[2]);
 	env[i + 1] = NULL;
 	return (env);
+}
+
+char		**redirect_setenv(char **cmd, char **env)
+{
+	char	*var[4];
+	char	**new_env;
+
+	var[0] = ft_strdup("setenv");
+	var[1] = ft_strcdup(cmd[1], '=');
+	var[2] = ft_strsub(ft_strstr(cmd[1], "="), 1, ft_strlen(cmd[1])
+			- ft_strlen(var[0]) + 3);
+	var[3] = NULL;
+	new_env = do_setenv(var, env);
+	ft_strdel(&var[0]);
+	ft_strdel(&var[1]);
+	ft_strdel(&var[2]);
+	return (new_env);
 }
 
 char		**do_setenv(char **cmd, char **env)
@@ -67,10 +83,10 @@ char		**do_setenv(char **cmd, char **env)
 			if (!(new_env = (char **)malloc(sizeof(char *) * (len + 2))))
 				return (NULL);
 			new_env = add_line(env, new_env, cmd, len);
+			ft_freetab(env);
 			return (new_env);
 		}
 		return (modif_line(env, cmd, i, len));
 	}
-	ft_freetab(env);
 	return (NULL);
 }

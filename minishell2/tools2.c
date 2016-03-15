@@ -6,7 +6,7 @@
 /*   By: adu-pelo <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/03/14 17:40:14 by adu-pelo          #+#    #+#             */
-/*   Updated: 2016/03/14 18:56:00 by adu-pelo         ###   ########.fr       */
+/*   Updated: 2016/03/15 16:38:02 by adu-pelo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -98,4 +98,11 @@ int		is_builtin(char *cmd)
 		return (4);
 	else
 		return (0);
+}
+
+void	free_exit(char **env, char **cmd, char **path)
+{
+	ft_freetab(path);
+	ft_freetab(cmd);
+	ft_freetab(env);
 }

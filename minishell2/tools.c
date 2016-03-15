@@ -6,13 +6,13 @@
 /*   By: adu-pelo <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/03/14 15:29:18 by adu-pelo          #+#    #+#             */
-/*   Updated: 2016/03/14 18:54:40 by adu-pelo         ###   ########.fr       */
+/*   Updated: 2016/03/15 16:59:45 by adu-pelo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-char	**ignore_env(char **env, int len)
+char		**ignore_env(char **env, int len)
 {
 	if (len != 2)
 	{
@@ -23,7 +23,7 @@ char	**ignore_env(char **env, int len)
 	return (NULL);
 }
 
-char	**resize_cmd(char **cmd, char **tmp_cmd, int flag)
+char		**resize_cmd(char **cmd, char **tmp_cmd, int flag)
 {
 	int	i;
 
@@ -38,7 +38,7 @@ char	**resize_cmd(char **cmd, char **tmp_cmd, int flag)
 	return (tmp_cmd);
 }
 
-char	**rm_nl(char **env, int size)
+char		**rm_nl(char **env, int size)
 {
 	int		i;
 	int		len;
@@ -64,35 +64,26 @@ char	**rm_nl(char **env, int size)
 		return (NULL);
 }
 
-char	**redirect_setenv(char **cmd, char **env)
+static void	free_fork(char **path, char **tmp_cmd, char *paths, char *cmdp)
 {
-	char	*var[4];
-	char	**new_env;
-
-	var[0] = ft_strdup("setenv");
-	var[1] = ft_strcdup(cmd[1], '=');
-	var[2] = ft_strsub(ft_strstr(cmd[1], "="), 1, ft_strlen(cmd[1])
-			- ft_strlen(var[0]) + 3);
-	var[3] = NULL;
-	new_env = do_setenv(var, env);
-	ft_strdel(&var[0]);
-	ft_strdel(&var[1]);
-	ft_strdel(&var[2]);
-	return (new_env);
+	ft_freetab(path);
+	ft_strdel(&paths);
+	ft_strdel(&cmdp);
+	ft_freetab(tmp_cmd);
 }
 
-void	redirect_fork(char **cmd, char **env, int flag)
+void		redirect_fork(char **cmd, char **env, int flag)
 {
 	char	*cmdp;
 	char	*paths;
 	char	**path;
 	char	**tmp_cmd;
 
+	cmdp = NULL;
 	if (!(tmp_cmd = (char **)malloc(sizeof(char *) *
 		(ft_tablen(cmd) - flag + 1))))
 		exit(1);
-	tmp_cmd = resize_cmd(cmd, tmp_cmd, flag);
-	if (env)
+	if (env && (tmp_cmd = resize_cmd(cmd, tmp_cmd, flag)))
 	{
 		paths = get_var_content(env, "PATH");
 		if (paths && (path = ft_strsplit(paths, ':')))
@@ -101,6 +92,7 @@ void	redirect_fork(char **cmd, char **env, int flag)
 				execute_cmd(tmp_cmd, cmdp, env);
 			else
 				ft_putendl("command not found");
+			free_fork(path, tmp_cmd, paths, cmdp);
 		}
 		else
 			ft_putendl("command not found");

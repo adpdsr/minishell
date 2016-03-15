@@ -6,7 +6,7 @@
 /*   By: adu-pelo <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/03/12 12:02:42 by adu-pelo          #+#    #+#             */
-/*   Updated: 2016/03/14 15:28:39 by adu-pelo         ###   ########.fr       */
+/*   Updated: 2016/03/15 16:22:47 by adu-pelo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,7 +46,6 @@ char		**do_unsetenv(char **cmd, char **env)
 	{
 		if (len == 1)
 		{
-			ft_putendl("len is == 1, free env");
 			ft_freetab(env);
 			return (NULL);
 		}

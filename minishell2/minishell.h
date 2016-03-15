@@ -6,7 +6,7 @@
 /*   By: adu-pelo <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/03/12 12:04:31 by adu-pelo          #+#    #+#             */
-/*   Updated: 2016/03/14 18:16:35 by adu-pelo         ###   ########.fr       */
+/*   Updated: 2016/03/15 16:38:00 by adu-pelo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,7 @@
 # include <sys/wait.h>
 
 void	execute_cmd(char **cmd, char *cmdp, char **env);
+void	free_exit(char **env, char **cmd, char **path);
 void	prompt(char **env);
 void	print_env(char **env);
 char	*get_var_content(char **env, char *var);

@@ -6,7 +6,7 @@
 /*   By: adu-pelo <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/03/12 12:05:32 by adu-pelo          #+#    #+#             */
-/*   Updated: 2016/03/14 18:56:02 by adu-pelo         ###   ########.fr       */
+/*   Updated: 2016/03/15 17:28:37 by adu-pelo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,28 +29,34 @@ static char	**get_path_tab(char **env, char **path)
 
 static void	do_exe_cmd(char **env, char **cmd, char **path)
 {
+	int		ref;
+	char	*tmp;
 	char	*cmdp;
 
 	cmdp = NULL;
-	if ((cmdp = find_cmdp(cmd[0], path)) != NULL)
+	if ((ft_strstr(cmd[0], "/")))
+	{
+		tmp = cmd[0];
+		ref = ft_strlen(cmd[0]);
+		while (ref > 0 && cmd[0][ref] != '/')
+			ref--;
+		cmdp = ft_strsub(tmp, 0, ref);
+		cmd[0] = ft_strsub(tmp, ref + 1, ft_strlen(tmp));
+		ft_strdel(&tmp);
+		execute_cmd(cmd, cmdp, NULL);
+	}
+	else if ((cmdp = find_cmdp(cmd[0], path)) != NULL)
 		execute_cmd(cmd, cmdp, env);
 	else
 		ft_putendl("command not found");
 	ft_strdel(&cmdp);
 }
 
-static void	free_exit(char **env, char **cmd, char **path)
-{
-	ft_freetab(path);
-	ft_freetab(cmd);
-	ft_freetab(env);	
-}
-
-static void	parse_cmd(char **env, char **cmd, char **path, char *line)
+static char	**parse_cmd(char **env, char **cmd, char **path, char *line)
 {
 	cmd = ft_strsplit(line, ' ');
 	ft_strdel(&line);
-	if (ft_tablen(cmd))
+	if (ft_tablen(cmd) != 0)
 	{
 		path = get_path_tab(env, path);
 		if (!(ft_strcmp(cmd[0], "exit")) && ft_tablen(cmd) == 1)
@@ -59,18 +65,25 @@ static void	parse_cmd(char **env, char **cmd, char **path, char *line)
 			exit(0);
 		}
 		else if (is_builtin(cmd[0]) > 0)
-		{
-			ft_putendl("test1");
 			env = do_builtin(cmd, env);
-			ft_putendl("test2");
-		}
 		else
 			do_exe_cmd(env, cmd, path);
-		ft_putendl("test3");
 		ft_freetab(path);
-		ft_putendl("test4");
 	}
+	if (cmd)
+		ft_freetab(cmd);
+	return (env);
 }
+
+// ls -l ; cd ./ ; pwd
+// tab 1
+// -> ls
+// -> -l
+// tab 2
+// -> cd
+// -> ./
+// tab 3
+// pwd
 
 int			main(int ac, char **av, char **environ)
 {
@@ -79,26 +92,19 @@ int			main(int ac, char **av, char **environ)
 	char	**env;
 	char	**path;
 
-	ft_putendl("test0.0");
+	signal(SIGINT, SIG_IGN);
 	env = ft_tabdup(environ);
-	ft_putendl("test0.1");
 	if (ac == 1)
 	{
 		while (1)
 		{
-			ft_putendl("test0.2");
 			cmd = NULL;
 			path = NULL;
-			ft_putendl("test0.3");
 			prompt(env);
 			if ((get_next_line(0, &line)) == 1)
-			{
-				ft_putendl("test0.4");
-				parse_cmd(env, cmd, path, line);
-			}
+				env = parse_cmd(env, cmd, path, line);
 			else
 				ft_putendl("no command");
-			ft_putendl("test0.5");
 		}
 	}
 	else
