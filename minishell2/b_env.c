@@ -6,7 +6,7 @@
 /*   By: adu-pelo <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/03/12 11:59:32 by adu-pelo          #+#    #+#             */
-/*   Updated: 2016/03/15 16:46:58 by adu-pelo         ###   ########.fr       */
+/*   Updated: 2016/03/16 14:23:48 by adu-pelo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,10 +39,11 @@ static char	**do_unset_opt(char **cmd, char **env, char **tmp_env)
 	if (len == 2)
 		ft_putendl_fd("wrong number of argument", 2);
 	else if (len == 3)
-		return (do_unsetenv(++cmd, env));
+		return (do_unsetenv(++cmd, env, 1));
 	else if (len > 3)
 	{
-		tmp_env = do_unsetenv(&cmd[1], tmp_env);
+		tmp_env = do_unsetenv(&cmd[1], tmp_env, 1);
+		print_env(tmp_env);
 		redirect_fork(cmd, tmp_env, 3);
 	}
 	ft_freetab(tmp_env);

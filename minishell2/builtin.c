@@ -6,7 +6,7 @@
 /*   By: adu-pelo <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/03/12 12:03:39 by adu-pelo          #+#    #+#             */
-/*   Updated: 2016/03/15 17:23:47 by adu-pelo         ###   ########.fr       */
+/*   Updated: 2016/03/16 14:23:46 by adu-pelo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,17 +28,23 @@ int		is_in(char **env, char *cmd)
 	return (i);
 }
 
-char	**do_builtin(char **cmd, char **env)
+char	**do_builtin(char **cmd, char **env, int flag)
 {
 	char	**modif_env;
 
-	if (!ft_strcmp(cmd[0], "cd"))
-		modif_env = do_cd(cmd, env);
-	else if (!ft_strcmp(cmd[0], "setenv"))
-		modif_env = do_setenv(cmd, env);
-	else if (!ft_strcmp(cmd[0], "unsetenv"))
-		modif_env = do_unsetenv(cmd, env);
-	else
-		modif_env = do_env(cmd, env);
+	modif_env = NULL;
+	if (flag == 0)
+	{
+		if (!ft_strcmp(cmd[0], "cd"))
+			modif_env = do_cd(cmd, env);
+		else if (!ft_strcmp(cmd[0], "setenv"))
+			modif_env = do_setenv(cmd, env);
+		else if (!ft_strcmp(cmd[0], "unsetenv"))
+			modif_env = do_unsetenv(cmd, env, 0);
+		else if (!ft_strcmp(cmd[0], "env"))
+			modif_env = do_env(cmd, env);
+		else if (cmd[0])
+			err_not_found(cmd[0], 1);
+	}
 	return (modif_env);
 }

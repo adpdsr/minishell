@@ -6,7 +6,7 @@
 /*   By: adu-pelo <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/03/12 11:59:04 by adu-pelo          #+#    #+#             */
-/*   Updated: 2016/03/15 17:28:39 by adu-pelo         ###   ########.fr       */
+/*   Updated: 2016/03/16 13:13:13 by adu-pelo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,10 +26,10 @@ static void	do_no_arg(char **env)
 			ft_strdel(&home);
 		}
 		else
-			ft_putendl("root path not found in HOME");
+			ft_putendl_fd("root path not found in HOME", 2);
 	}
 	else
-		ft_putendl("root path not found in HOME");
+		ft_putendl_fd("root path not found in HOME", 2);
 }
 
 static char	*add_root_path(char **env, char *cmd)
@@ -49,7 +49,7 @@ static char	*add_root_path(char **env, char *cmd)
 	{
 		rest = ft_strstr(cmd, "/");
 		if (!(new_cmd = (char *)malloc(sizeof(char) *
-			(ft_strlen(home) + ft_strlen(cmd) + 1))))
+						(ft_strlen(home) + ft_strlen(cmd) + 1))))
 			return (NULL);
 		new_cmd = ft_strcpy(new_cmd, home);
 		new_cmd = ft_strcat(new_cmd, rest);
@@ -64,33 +64,43 @@ static char	*add_root_path(char **env, char *cmd)
 static void	print_error(char *s1, char *s2)
 {
 	ft_putstr_fd(s1, 2);
-	ft_putendl_fd(s2, 2);
+	color(RED, s2);
+	color(RESET, "\n");
+}
+
+static void	try_cd(char *cmd)
+{
+	struct stat	st;
+	DIR			*dir;
+
+	dir = NULL;
+	dir = opendir(cmd);
+	if (stat(cmd, &st))
+		print_error("cd: No such file or directory: ", cmd);
+	else if (!(S_ISDIR(st.st_mode)))
+		print_error("cd: Not a directory: ", cmd);
+	else if (access(cmd, X_OK) == -1)
+		print_error("cd: Permission denied: ", cmd);
+	else
+		chdir(cmd);
+	if (dir)
+		closedir(dir);
 }
 
 char		**do_cd(char **cmd, char **env)
 {
-	DIR			*dir;
-	struct stat	st;
+	int len;
 
-	dir = NULL;
+	len = ft_tablen(cmd);
+	if (len > 2)
+		ft_putendl_fd("cd: wrong number of arguments", 2);
 	if (cmd[1] && cmd[1][0] == '~')
 		cmd[1] = add_root_path(env, cmd[1]);
-	if (cmd[1] && (dir = opendir(cmd[1])))
-	{
-		if (stat(cmd[1], &st))
-			print_error("cd: No such file or directory: ", cmd[1]);
-		else if (!(S_ISDIR(st.st_mode)))
-			print_error("cd: Not a directory: ", cmd[1]);
-		else if (access(cmd[1], X_OK) == -1)
-			print_error("cd: Permission denied: ", cmd[1]);
-		else
-			chdir(cmd[1]);
-		if (dir)
-			closedir(dir);
-	}
+	if (len == 2)
+		try_cd(cmd[1]);
 	else if (!cmd[1])
 		do_no_arg(env);
-	else
+	else if (len == 2)
 		print_error("cd: No such file or directory: ", cmd[1]);
 	return (env);
 }

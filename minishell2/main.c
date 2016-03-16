@@ -6,7 +6,7 @@
 /*   By: adu-pelo <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/03/12 12:05:32 by adu-pelo          #+#    #+#             */
-/*   Updated: 2016/03/15 17:28:37 by adu-pelo         ###   ########.fr       */
+/*   Updated: 2016/03/16 14:11:13 by adu-pelo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,7 +48,7 @@ static void	do_exe_cmd(char **env, char **cmd, char **path)
 	else if ((cmdp = find_cmdp(cmd[0], path)) != NULL)
 		execute_cmd(cmd, cmdp, env);
 	else
-		ft_putendl("command not found");
+		err_not_found(cmd[0], 1);
 	ft_strdel(&cmdp);
 }
 
@@ -70,7 +70,7 @@ static char	**parse_cmd(char **env, char *line)
 			exit(0);
 		}
 		else if (is_builtin(cmd[0]) > 0)
-			env = do_builtin(cmd, env);
+			env = do_builtin(cmd, env, 0);
 		else
 			do_exe_cmd(env, cmd, path);
 		ft_freetab(path);
@@ -79,16 +79,6 @@ static char	**parse_cmd(char **env, char *line)
 		ft_freetab(cmd);
 	return (env);
 }
-
-// ls -l ; cd ./ ; pwd
-// tab 1
-// -> ls
-// -> -l
-// tab 2
-// -> cd
-// -> ./
-// tab 3
-// pwd
 
 int			main(int ac, char **av, char **environ)
 {
@@ -99,31 +89,22 @@ int			main(int ac, char **av, char **environ)
 
 	signal(SIGINT, SIG_IGN);
 	env = ft_tabdup(environ);
-	if (ac == 1)
-	{
+	if (ac == 1 && av)
 		while (1)
 		{
 			prompt(env);
 			if ((get_next_line(0, &line)) == 1)
-			{	
-				i = 0;
+			{
+				i = -1;
 				cmds = NULL;
 				cmds = ft_strsplit(line, ';');
-				print_env(cmds);
-				while (cmds[i])
-				{
-					ft_putstr("new cmd : ");
-					ft_putendl(cmds[i]);
+				ft_strdel(&line);
+				while (cmds[++i])
 					env = parse_cmd(env, cmds[i]);
-					i++;
-				}
+				free(cmds);
 			}
-			// ft_freetab(cmds);
-			// do cd when cmd = cd ../ ls -> correct
 		}
-	}
 	else
 		ft_putendl("usage: ./minishell");
-	av = NULL;
 	return (0);
 }

@@ -6,7 +6,7 @@
 /*   By: adu-pelo <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/03/12 13:42:55 by adu-pelo          #+#    #+#             */
-/*   Updated: 2016/03/15 17:13:51 by adu-pelo         ###   ########.fr       */
+/*   Updated: 2016/03/16 13:14:50 by adu-pelo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,9 +14,9 @@
 
 void		color(char *color, char *toput)
 {
-	ft_putchar('\033');
-	ft_putstr(color);
-	ft_putstr(toput);
+	ft_putchar_fd('\033', 2);
+	ft_putstr_fd(color, 2);
+	ft_putstr_fd(toput, 2);
 }
 
 void		prompt(char **env)
@@ -28,13 +28,13 @@ void		prompt(char **env)
 	getcwd(cwd, 100);
 	user = get_var_content(env, "USER");
 	home = get_var_content(env, "HOME");
-	color("[36m", "# ");
+	color(CYAN, "# ");
 	if (user)
 		ft_putstr(user);
 	else
 		ft_putstr("incognito");
-	color("[39m", " ");
-	color("[33m", "");
+	color(RESET, " ");
+	color(YELLOW, "");
 	if (home && ft_strstr(cwd, home))
 	{
 		ft_putchar('~');
@@ -44,5 +44,5 @@ void		prompt(char **env)
 		ft_putstr(cwd);
 	ft_strdel(&user);
 	ft_strdel(&home);
-	color("[39m", " $> ");
+	color(RESET, " $> ");
 }
