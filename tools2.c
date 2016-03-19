@@ -6,7 +6,7 @@
 /*   By: adu-pelo <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/03/14 17:40:14 by adu-pelo          #+#    #+#             */
-/*   Updated: 2016/03/16 14:35:19 by adu-pelo         ###   ########.fr       */
+/*   Updated: 2016/03/19 17:03:00 by adu-pelo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,30 +33,30 @@ void	print_env(char **env)
 		ft_putendl("env: environment is empty");
 }
 
-char	*find_cmdp(char *cmd, char **path)
+char	**rm_nl(char **env, int size)
 {
-	int				i;
-	int				j;
-	DIR				*dir;
-	struct dirent	*ret;
+	int		i;
+	int		len;
+	char	**new_env;
 
-	if (cmd && path && *path)
+	i = 0;
+	if (size && env)
 	{
-		j = 0;
-		i = -1;
-		while (path[++i])
-			if ((dir = opendir(path[i])))
-			{
-				while ((ret = readdir(dir)))
-					if (!ft_strcmp(ret->d_name, cmd))
-					{
-						closedir(dir);
-						return (ft_strdup(path[i]));
-					}
-				closedir(dir);
-			}
+		if (!(new_env = (char **)malloc(sizeof(char *) * size)))
+			return (NULL);
+		while (i < size - 1)
+		{
+			len = ft_strlen(env[i]);
+			new_env[i] = ft_strndup(env[i], len);
+			new_env[i][len] = '\0';
+			i++;
+		}
+		new_env[i] = NULL;
+		ft_freetab(env);
+		return (new_env);
 	}
-	return (NULL);
+	else
+		return (NULL);
 }
 
 char	*get_var_content(char **env, char *var)
@@ -73,7 +73,7 @@ char	*get_var_content(char **env, char *var)
 		{
 			if (!ft_strncmp(env[i], var, ft_strlen(var)))
 			{
-				start = ft_strlen(var) + 1;
+				start = ft_strlen(var);
 				tmp = ft_strsub(env[i], start, ft_strlen(env[i]) - start);
 				content = ft_strdup(tmp);
 				ft_strdel(&tmp);
@@ -86,23 +86,24 @@ char	*get_var_content(char **env, char *var)
 	return (NULL);
 }
 
-int		is_builtin(char *cmd)
-{
-	if (!ft_strcmp(cmd, "cd"))
-		return (1);
-	else if (!ft_strcmp(cmd, "env"))
-		return (2);
-	else if (!ft_strcmp(cmd, "setenv"))
-		return (3);
-	else if (!ft_strcmp(cmd, "unsetenv"))
-		return (4);
-	else
-		return (0);
-}
-
 void	free_exit(char **env, char **cmd, char **path)
 {
-	ft_freetab(path);
-	ft_freetab(cmd);
-	ft_freetab(env);
+	if (path && *path)
+		ft_freetab(path);
+	if (cmd && *cmd)
+		ft_freetab(cmd);
+	if (env && *env)
+		ft_freetab(env);
+}
+
+void	free_fork(char **path, char **tmp_cmd, char *paths, char *cmdp)
+{
+	if (path && *path)
+		ft_freetab(path);
+	if (paths)
+		ft_strdel(&paths);
+	if (cmdp)
+		ft_strdel(&cmdp);
+	if (tmp_cmd && *tmp_cmd)
+		ft_freetab(tmp_cmd);
 }

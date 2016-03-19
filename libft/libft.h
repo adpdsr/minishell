@@ -6,7 +6,7 @@
 /*   By: adu-pelo <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/01 18:08:49 by adu-pelo          #+#    #+#             */
-/*   Updated: 2016/03/16 14:35:42 by adu-pelo         ###   ########.fr       */
+/*   Updated: 2016/03/18 11:40:49 by adu-pelo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,6 +76,7 @@ char				*ft_strjoin(char const *s1, char const *s2);
 char				*ft_strnjoin(const char *s1, const char *s2, size_t len);
 char				*ft_strtrim(char const *s);
 char				**ft_strsplit(char const *s, char c);
+char				**ft_strsplit_ws(char const *s1);
 char				*ft_itoa(int n);
 void				ft_putchar(char c);
 void				ft_putstr(char const *s);
@@ -102,5 +103,6 @@ char				**ft_tabdup(char **tab);
 void				ft_freetab(char **tab);
 int					ft_sscmp(char *s, char *s1, char *s2);
 int					ft_ssscmp(char *s, char *s1, char *s2, char *s3);
+void				ft_putstrstr_fd(char *s1, char *s2, int fd);
 
 #endif

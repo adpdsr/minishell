@@ -6,7 +6,7 @@
 /*   By: adu-pelo <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/03/12 13:42:10 by adu-pelo          #+#    #+#             */
-/*   Updated: 2016/03/16 14:34:03 by adu-pelo         ###   ########.fr       */
+/*   Updated: 2016/03/19 17:38:32 by adu-pelo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,15 +30,10 @@ static char	**add_line(char **env, char **new_env, char **cmd, int len)
 	return (new_env);
 }
 
-static char	**modif_line(char **env, char **cmd, int i, int len)
+static char	**modif_line(char **env, char **cmd, int i)
 {
 	char *tmp;
 
-	if (len == 1)
-	{
-		ft_freetab(env);
-		return (NULL);
-	}
 	ft_strdel(&env[i]);
 	env[i] = ft_strcat(cmd[1], "=");
 	tmp = env[i];
@@ -85,7 +80,7 @@ char		**do_setenv(char **cmd, char **env)
 			ft_freetab(env);
 			return (new_env);
 		}
-		return (modif_line(env, cmd, i, len));
+		return (modif_line(env, cmd, i));
 	}
 	return (NULL);
 }

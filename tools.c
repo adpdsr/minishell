@@ -6,7 +6,7 @@
 /*   By: adu-pelo <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/03/14 15:29:18 by adu-pelo          #+#    #+#             */
-/*   Updated: 2016/03/16 14:35:13 by adu-pelo         ###   ########.fr       */
+/*   Updated: 2016/03/19 17:27:32 by adu-pelo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,38 +38,12 @@ char		**resize_cmd(char **cmd, char **tmp_cmd, int flag)
 	return (tmp_cmd);
 }
 
-char		**rm_nl(char **env, int size)
+static void	redirect_error(char **cmd)
 {
-	int		i;
-	int		len;
-	char	**new_env;
-
-	i = 0;
-	if (size && env)
-	{
-		if (!(new_env = (char **)malloc(sizeof(char *) * size)))
-			return (NULL);
-		while (i < size - 1)
-		{
-			len = ft_strlen(env[i]);
-			new_env[i] = ft_strndup(env[i], len);
-			new_env[i][len] = '\0';
-			i++;
-		}
-		new_env[i] = NULL;
-		ft_freetab(env);
-		return (new_env);
-	}
+	if (cmd[3])
+		err_not_found(cmd[3], 1);
 	else
-		return (NULL);
-}
-
-static void	free_fork(char **path, char **tmp_cmd, char *paths, char *cmdp)
-{
-	ft_freetab(path);
-	ft_strdel(&paths);
-	ft_strdel(&cmdp);
-	ft_freetab(tmp_cmd);
+		err_not_found(cmd[0], 1);
 }
 
 void		redirect_fork(char **cmd, char **env, int flag)
@@ -81,22 +55,21 @@ void		redirect_fork(char **cmd, char **env, int flag)
 
 	cmdp = NULL;
 	tmp_cmd = (char **)malloc(sizeof(char *) * (LEN(cmd) - flag + 1));
+	paths = get_var_content(env, "PATH=");
+	if (paths)
+		path = ft_strsplit(paths, ':');
 	if ((tmp_cmd = resize_cmd(cmd, tmp_cmd, flag)) && env)
 	{
-		paths = get_var_content(env, "PATH");
-		if (paths && (path = ft_strsplit(paths, ':')))
-		{
-			if (path && (cmdp = find_cmdp(tmp_cmd[0], path)))
-				execute_cmd(tmp_cmd, cmdp, env);
-			else
-				err_not_found(cmd[0], 1);
-			free_fork(path, tmp_cmd, paths, cmdp);
-		}
-		else if (cmd[3])
-			err_not_found(cmd[3], 1);
+		if (!paths || !path)
+			redirect_error(cmd);
+		else if (path && (cmdp = find_cmdp(tmp_cmd[0], path)))
+			execute_cmd(tmp_cmd, cmdp, env);
 		else
-			err_not_found(cmd[0], 1);
+			ft_putendl_fd("command not found", 2);
+		free_fork(path, tmp_cmd, paths, cmdp);
 	}
+	else if (!env)
+		err_not_found(cmd[2], 1);
 	else
-		do_builtin(tmp_cmd, env, 1);
+		do_builtin(tmp_cmd, env, path, 1);
 }

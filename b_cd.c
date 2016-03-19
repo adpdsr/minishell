@@ -6,7 +6,7 @@
 /*   By: adu-pelo <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/03/12 11:59:04 by adu-pelo          #+#    #+#             */
-/*   Updated: 2016/03/16 14:33:52 by adu-pelo         ###   ########.fr       */
+/*   Updated: 2016/03/19 17:06:06 by adu-pelo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ static void	do_no_arg(char **env)
 	home = NULL;
 	if (env && *env)
 	{
-		home = get_var_content(env, "HOME");
+		home = get_var_content(env, "HOME=");
 		if (home)
 		{
 			chdir(home);
@@ -32,14 +32,14 @@ static void	do_no_arg(char **env)
 		ft_putendl_fd("root path not found in HOME", 2);
 }
 
-static char	*add_root_path(char **env, char *cmd)
+char		*add_root_path(char **env, char *cmd)
 {
 	char	*home;
 	char	*rest;
 	char	*new_cmd;
 
 	new_cmd = NULL;
-	home = get_var_content(env, "HOME");
+	home = get_var_content(env, "HOME=");
 	if (!cmd[1] || (cmd[1] == '/' && !cmd[2]))
 	{
 		ft_strdel(&cmd);
@@ -75,6 +75,8 @@ static void	try_cd(char *cmd)
 
 	dir = NULL;
 	dir = opendir(cmd);
+	if (!cmd)
+		return ;
 	if (stat(cmd, &st))
 		print_error("cd: No such file or directory: ", cmd);
 	else if (!(S_ISDIR(st.st_mode)))
@@ -94,7 +96,7 @@ char		**do_cd(char **cmd, char **env)
 	len = ft_tablen(cmd);
 	if (len > 2)
 		ft_putendl_fd("cd: wrong number of arguments", 2);
-	if (cmd[1] && cmd[1][0] == '~')
+	if (cmd[1] && cmd[1][0] == '~' && cmd[1][1] != '~')
 		cmd[1] = add_root_path(env, cmd[1]);
 	if (len == 2)
 		try_cd(cmd[1]);
