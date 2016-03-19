@@ -6,7 +6,7 @@
 /*   By: adu-pelo <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/03/12 12:05:32 by adu-pelo          #+#    #+#             */
-/*   Updated: 2016/03/19 17:39:54 by adu-pelo         ###   ########.fr       */
+/*   Updated: 2016/03/19 17:45:18 by adu-pelo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,7 +82,7 @@ static char	**parse_cmd(char **env, char *line)
 
 static char	**parse_multi_cmd(char **env, char *line)
 {
-	int 	i;
+	int		i;
 	char	**cmds;
 
 	i = -1;
