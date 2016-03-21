@@ -6,7 +6,7 @@
 /*   By: adu-pelo <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/03/12 13:42:33 by adu-pelo          #+#    #+#             */
-/*   Updated: 2016/03/19 17:39:56 by adu-pelo         ###   ########.fr       */
+/*   Updated: 2016/03/21 16:34:01 by adu-pelo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,14 +48,25 @@ char		*find_cmdp(char *cmd, char **path)
 	return (NULL);
 }
 
+static char	*set_tmp(char *cmdp, char *tmp, char **env, char **cmd)
+{
+	tmp = NULL;
+	check_tilde(env, cmd);
+	if (cmdp)
+		tmp = ft_strjoin(cmdp, "/");
+	else
+		tmp = ft_strdup("./");
+	return (tmp);
+}
+
 void		execute_cmd(char **cmd, char *cmdp, char **env)
 {
 	char	*tmp;
 	pid_t	father;
 
-	check_tilde(env, cmd);
-	tmp = ft_strjoin(cmdp, "/");
-	if (access(ft_strjoin(tmp, cmd[0]), X_OK) != -1)
+	tmp = NULL;
+	tmp = set_tmp(cmdp, tmp, env, cmd);
+	if (access(ft_strjoin(tmp, cmd[0]), X_OK) != -1 && ft_strlen(cmd[0]) > 1)
 	{
 		father = fork();
 		if (father > 0)
@@ -70,6 +81,8 @@ void		execute_cmd(char **cmd, char *cmdp, char **env)
 		else
 			ft_putendl("cannot fork");
 	}
+	else if (access(ft_strjoin(tmp, cmd[0]), X_OK) != -1)
+		ft_putstrstr_fd(cmd[0], ": Invalid argument\n", 2);
 	else
 		ft_putstrstr_fd(cmd[0], ": Permission denied\n", 2);
 	ft_strdel(&tmp);

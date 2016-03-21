@@ -6,7 +6,7 @@
 /*   By: adu-pelo <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/03/12 11:59:32 by adu-pelo          #+#    #+#             */
-/*   Updated: 2016/03/19 17:38:17 by adu-pelo         ###   ########.fr       */
+/*   Updated: 2016/03/21 16:34:03 by adu-pelo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,7 +65,7 @@ static char	**do_ignore_opt(char **cmd, char **env, char **tmp_env)
 	return (env);
 }
 
-static char	**do_equal_opt(char **cmd, char **env, char **tmp_env, char **path)
+static char	**do_equal_opt(char **cmd, char **env, char **tmp_env)
 {
 	int len;
 
@@ -78,16 +78,13 @@ static char	**do_equal_opt(char **cmd, char **env, char **tmp_env, char **path)
 	else if (len > 2)
 	{
 		tmp_env = redirect_setenv(cmd, tmp_env);
-		if (!find_cmdp(cmd[2], path))
-			err_not_found(cmd[2], 1);
-		else
-			redirect_fork(cmd, tmp_env, 2);
+		redirect_fork(cmd, tmp_env, 2);
 	}
 	ft_freetab(tmp_env);
 	return (env);
 }
 
-char		**do_env(char **cmd, char **env, char **path)
+char		**do_env(char **cmd, char **env)
 {
 	char	**tmp_env;
 
@@ -105,7 +102,7 @@ char		**do_env(char **cmd, char **env, char **path)
 	else if (ft_ssscmp(cmd[1], "-", "-i", "--ignore-environment"))
 		return (do_ignore_opt(cmd, env, tmp_env));
 	else if (ft_cntc(cmd[1], '=') == 1)
-		return (do_equal_opt(cmd, env, tmp_env, path));
+		return (do_equal_opt(cmd, env, tmp_env));
 	else if (!ft_strcmp(cmd[1], "--version"))
 		ft_putendl("version 1.0 made by adu-pelo");
 	else

@@ -6,7 +6,7 @@
 /*   By: adu-pelo <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/03/12 12:04:31 by adu-pelo          #+#    #+#             */
-/*   Updated: 2016/03/19 15:11:58 by adu-pelo         ###   ########.fr       */
+/*   Updated: 2016/03/21 16:11:10 by adu-pelo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,9 @@
 
 # define LEN(x) ft_tablen(x)
 
+int		is_in(char **env, char *cmd);
+int		is_builtin(char *cmd);
+
 void	free_fork(char **path, char **tmp_cmd, char *paths, char *cmdp);
 void	execute_cmd(char **cmd, char *cmdp, char **env);
 void	free_exit(char **env, char **cmd, char **path);
@@ -44,13 +47,10 @@ char	*get_var_content(char **env, char *var);
 char	*add_root_path(char **env, char *cmd);
 char	*find_cmdp(char *cmd, char **path);
 
-int		is_in(char **env, char *cmd);
-int		is_builtin(char *cmd);
-
-char	**do_builtin(char **cmd, char **env, char **path, int flag);
 char	**do_unsetenv(char **cmd, char **env, int flag);
-char	**do_env(char **cmd, char **env, char **path);
+char	**do_builtin(char **cmd, char **env, int flag);
 char	**do_setenv(char **cmd, char **env);
+char	**do_env(char **cmd, char **env);
 char	**do_cd(char **cmd, char **env);
 
 char	**resize_cmd(char **cmd, char **tmp_cmd, int flag);

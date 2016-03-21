@@ -6,7 +6,7 @@
 /*   By: adu-pelo <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/03/12 13:42:55 by adu-pelo          #+#    #+#             */
-/*   Updated: 2016/03/19 17:30:37 by adu-pelo         ###   ########.fr       */
+/*   Updated: 2016/03/21 16:24:40 by adu-pelo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,7 +35,7 @@ static char	**refresh_content(char **env, char *s, char *content)
 	{
 		i = -1;
 		while (env[++i])
-			if (!ft_strncmp(env[i], s, ft_strlen(s)))
+			if (!ft_strncmp(env[i], s, ft_strlen(s)) && content)
 			{
 				tmp = ft_strdup(env[i]);
 				tmp = ft_strjoin(s, content);
@@ -74,6 +74,7 @@ void		prompt(char **env, int nb)
 	char *user;
 	char cwd[150];
 
+	ref_pwd = NULL;
 	if (nb)
 		ref_pwd = get_var_content(env, "PWD=");
 	else

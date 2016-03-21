@@ -6,7 +6,7 @@
 /*   By: adu-pelo <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/03/12 12:03:39 by adu-pelo          #+#    #+#             */
-/*   Updated: 2016/03/18 12:03:42 by adu-pelo         ###   ########.fr       */
+/*   Updated: 2016/03/21 15:58:50 by adu-pelo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@ int		is_in(char **env, char *cmd)
 	len = ft_strlen(cmd);
 	while (env && env[i])
 	{
-		if (!ft_strncmp(env[i], cmd, len))
+		if (!ft_strncmp(env[i], ft_strjoin(cmd, "="), len + 1))
 			break ;
 		i++;
 	}
@@ -42,7 +42,7 @@ int		is_builtin(char *cmd)
 		return (0);
 }
 
-char	**do_builtin(char **cmd, char **env, char **path, int flag)
+char	**do_builtin(char **cmd, char **env, int flag)
 {
 	char	**modif_env;
 
@@ -56,7 +56,7 @@ char	**do_builtin(char **cmd, char **env, char **path, int flag)
 		else if (!ft_strcmp(cmd[0], "unsetenv"))
 			modif_env = do_unsetenv(cmd, env, 0);
 		else if (!ft_strcmp(cmd[0], "env"))
-			modif_env = do_env(cmd, env, path);
+			modif_env = do_env(cmd, env);
 		else if (cmd[0])
 			err_not_found(cmd[0], 1);
 	}
