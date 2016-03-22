@@ -6,7 +6,7 @@
 /*   By: adu-pelo <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/03/14 15:29:18 by adu-pelo          #+#    #+#             */
-/*   Updated: 2016/03/21 16:32:26 by adu-pelo         ###   ########.fr       */
+/*   Updated: 2016/03/22 11:40:26 by adu-pelo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,14 +46,14 @@ static void	launch_fork(char **cmd, char **env, char **path, char *cmdp)
 	paths = get_var_content(env, "PATH=");
 	if (!paths || !path)
 	{
-		if (ft_cntc(cmd[0], '/'))
+		if (!ft_strncmp(cmd[0], "./", 2))
 			execute_cmd(cmd, NULL, env);
 		else
 			ft_putendl_fd("command not found", 2);
 	}
 	else if (path && (cmdp = find_cmdp(cmd[0], path)))
 		execute_cmd(cmd, cmdp, env);
-	else if (ft_cntc(cmd[0], '/'))
+	else if (!ft_strncmp(cmd[0], "./", 2))
 		execute_cmd(cmd, NULL, env);
 	else
 		ft_putendl_fd("command not found", 2);

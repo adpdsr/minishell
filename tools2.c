@@ -6,13 +6,13 @@
 /*   By: adu-pelo <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/03/14 17:40:14 by adu-pelo          #+#    #+#             */
-/*   Updated: 2016/03/19 17:03:00 by adu-pelo         ###   ########.fr       */
+/*   Updated: 2016/03/22 11:19:26 by adu-pelo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-void	print_env(char **env)
+char	**print_env(char **env)
 {
 	int i;
 
@@ -31,6 +31,7 @@ void	print_env(char **env)
 	}
 	else
 		ft_putendl("env: environment is empty");
+	return (env);
 }
 
 char	**rm_nl(char **env, int size)

@@ -6,7 +6,7 @@
 /*   By: adu-pelo <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/03/12 13:42:33 by adu-pelo          #+#    #+#             */
-/*   Updated: 2016/03/21 16:34:01 by adu-pelo         ###   ########.fr       */
+/*   Updated: 2016/03/22 12:28:04 by adu-pelo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,6 +59,21 @@ static char	*set_tmp(char *cmdp, char *tmp, char **env, char **cmd)
 	return (tmp);
 }
 
+static int	exist(char **env, char *cmd)
+{
+	DIR				*dir;
+	char 			*cur;
+	struct dirent	*ret;
+
+	cur = NULL;
+	cur = get_var_content(env, "PWD=");
+	if ((dir = opendir(cur)))
+		while ((ret = readdir(dir)))
+			if (!ft_strcmp(cmd, ret->d_name))	
+				return (1);
+	return (0);
+}
+
 void		execute_cmd(char **cmd, char *cmdp, char **env)
 {
 	char	*tmp;
@@ -81,9 +96,9 @@ void		execute_cmd(char **cmd, char *cmdp, char **env)
 		else
 			ft_putendl("cannot fork");
 	}
-	else if (access(ft_strjoin(tmp, cmd[0]), X_OK) != -1)
-		ft_putstrstr_fd(cmd[0], ": Invalid argument\n", 2);
-	else
+	else if (access(cmd[0], X_OK) == -1 && exist(env, cmd[0]))
 		ft_putstrstr_fd(cmd[0], ": Permission denied\n", 2);
+	else
+		ft_putendl_fd("command not found", 2);
 	ft_strdel(&tmp);
 }

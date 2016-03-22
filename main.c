@@ -6,7 +6,7 @@
 /*   By: adu-pelo <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/03/12 12:05:32 by adu-pelo          #+#    #+#             */
-/*   Updated: 2016/03/21 15:57:03 by adu-pelo         ###   ########.fr       */
+/*   Updated: 2016/03/22 11:40:05 by adu-pelo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,7 +48,7 @@ static void	do_exe_cmd(char **env, char **cmd, char **path)
 	else if ((cmdp = find_cmdp(cmd[0], path)) != NULL)
 		execute_cmd(cmd, cmdp, env);
 	else
-		err_not_found(cmd[0], 1);
+		ft_putendl("command not found");
 	ft_strdel(&cmdp);
 }
 

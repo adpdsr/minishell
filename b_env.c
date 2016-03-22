@@ -6,7 +6,7 @@
 /*   By: adu-pelo <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/03/12 11:59:32 by adu-pelo          #+#    #+#             */
-/*   Updated: 2016/03/21 16:34:03 by adu-pelo         ###   ########.fr       */
+/*   Updated: 2016/03/22 12:24:08 by adu-pelo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,7 +57,7 @@ static char	**do_ignore_opt(char **cmd, char **env, char **tmp_env)
 	if (len == 2)
 	{
 		ft_freetab(tmp_env);
-		return (ignore_env(env, len));
+		return (env);
 	}
 	else if (len > 2)
 		redirect_fork(cmd, NULL, 2);
@@ -89,10 +89,7 @@ char		**do_env(char **cmd, char **env)
 	char	**tmp_env;
 
 	if (ft_tablen(cmd) == 1)
-	{
-		print_env(env);
-		return (env);
-	}
+		return (print_env(env));
 	if (env)
 		tmp_env = ft_tabdup(env);
 	if (ft_sscmp(cmd[1], "-0", "--null"))
@@ -106,7 +103,7 @@ char		**do_env(char **cmd, char **env)
 	else if (!ft_strcmp(cmd[1], "--version"))
 		ft_putendl("version 1.0 made by adu-pelo");
 	else
-		ft_putendl_fd("option not found", 2);
+		redirect_fork(cmd, tmp_env, 1);
 	ft_freetab(tmp_env);
 	return (env);
 }
