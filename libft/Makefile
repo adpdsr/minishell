@@ -100,7 +100,7 @@ RM = rm -f
 all: $(NAME)
 
 $(NAME):
-	gcc $(CFLAGS) -c $(SRCS) -I libft.h
+	gcc $(CFLAGS) -c $(SRCS) -I.
 	ar r $(NAME) $(OBJS)
 	ranlib $(NAME)
 

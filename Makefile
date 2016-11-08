@@ -12,30 +12,37 @@
 
 NAME = minishell
 
-SRC = b_cd.c b_env.c b_setenv.c b_unsetenv.c builtin.c exe_cmd.c main.c \
-	  prompt.c tools.c tools2.c
+C_DIR = sources
+C_DIRS = $(shell find $(C_DIR) -type d -follow -print)
+C_FILES = $(shell find $(C_DIRS) -type f -follow -print | grep -w "[.c]$$")
 
-OBJ = $(SRC:.c=.o)
-LIB = ./libft/libft.a
-FLAGS = -Wall -Wextra -Werror
+O_DIR = .tmp/obj
+O_DIRS = $(C_DIRS:$(C_DIR)%=$(O_DIR)%)
+O_FILES = $(C_FILES:$(C_DIR)%.c=$(O_DIR)%.o)
 
-$(NAME): $(OBJ)
-	make -C ./libft
-	gcc $(FLAGS) $(OBJ) $(LIB) -o $(NAME)
+FLAGS = -Wall -Werror -Wextra
+INCLUDES = -Iincludes -Ilibft
+LIB = -L./libft -lft
 
 all: $(NAME)
 
-%.o: %.c
-	gcc $(FLAGS) -o $@ -c $<
+$(NAME): $(O_FILES)
+	make -C ./libft
+	gcc $(FLAGS) $^ $(LIB) -o $@
 
-clean:
-	rm -f $(OBJ)
-	make -C libft/ clean
+$(O_DIR)%.o: $(C_DIR)%.c
+	mkdir -p $(O_DIRS) $(O_DIR)
+	gcc $(FLAGS) $(INCLUDES) -o $@ -c $<
+
+clean:	
+	rm -rf $(O_FILES)
+	make clean -C libft
 
 fclean: clean
-	rm -rf $(NAME)
-	make fclean -C libft
+	@make fclean -C libft
+	@rm $(NAME) || true
+	@rm -rf .tmp/
 
-re: fclean $(NAME)
+re: fclean all
 
 .PHONY : all clean fclean re

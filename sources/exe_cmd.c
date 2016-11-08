@@ -25,13 +25,11 @@ static void	check_tilde(char **env, char **cmd)
 char		*find_cmdp(char *cmd, char **path)
 {
 	int				i;
-	int				j;
 	DIR				*dir;
 	struct dirent	*ret;
 
 	if (cmd && path && *path)
 	{
-		j = 0;
 		i = -1;
 		while (path[++i])
 			if ((dir = opendir(path[i])))
