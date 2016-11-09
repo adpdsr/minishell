@@ -6,7 +6,7 @@
 /*   By: adu-pelo <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/03/12 13:42:33 by adu-pelo          #+#    #+#             */
-/*   Updated: 2016/03/22 12:28:04 by adu-pelo         ###   ########.fr       */
+/*   Updated: 2016/11/09 12:17:26 by adu-pelo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,15 +60,19 @@ static char	*set_tmp(char *cmdp, char *tmp, char **env, char **cmd)
 static int	exist(char **env, char *cmd)
 {
 	DIR				*dir;
-	char 			*cur;
+	char			*cur;
 	struct dirent	*ret;
 
 	cur = NULL;
 	cur = get_var_content(env, "PWD=");
 	if ((dir = opendir(cur)))
+	{
 		while ((ret = readdir(dir)))
-			if (!ft_strcmp(cmd, ret->d_name))	
+		{
+			if (!ft_strcmp(cmd, ret->d_name))
 				return (1);
+		}
+	}
 	return (0);
 }
 
