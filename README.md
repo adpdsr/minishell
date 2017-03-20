@@ -1,12 +1,12 @@
-#minishell
+# minishell
 
 Projet Ecole 42 (Paris)
 
-##Synopsis
+## Synopsis
 
 Un mini-interpréteur de commandes Unix (shell). Ce projet est une introduction à la réalisation d'un shell avancé ([21sh](https://github.com/adpdsr/21sh) et [42sh](https://github.com/adpdsr/42sh)).
 
-###Fonctionnalités
+### Fonctionnalités
 
 * Affichage d'un prompt dynamique
 * Edition de ligne basique (termcaps)
